@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-    This is the recommended Pulse file to use when integrating pulseconfig.git
+    This is the recommended Pulse file to use when integrating this repository
     into a Pulse project.
 -->
 
@@ -12,11 +12,11 @@
             <process processor="$(Qt errors)"/>
         </executable>
 
-        <executable name="git clone pulseconfig" exe="git" args="clone qtgitreadonly:qa-dungeon/pulseconfig.git _pulseconfig">
+        <executable name="git clone testconfig" exe="git" args="clone git://gitorious.org/qtqa/testconfig _testconfig">
             <process processor="$(Qt errors)"/>
         </executable>
 
-        <executable name="Run test" exe="perl" args="_pulseconfig/test.pl">
+        <executable name="Run test" exe="perl" args="_testconfig/test.pl">
             <process processor="$(Qt errors)"/>
             <dir-artifact name="Global artifacts" fail-if-not-present="false">
                 <include pattern="_artifacts/**"/>
@@ -38,12 +38,9 @@
                 keeping some file locked which needs to be cleaned.
                 We want to clean to save space, but it doesn't really matter if it fails
                 since we clean at the beginning anyway.
-            -->  
+            -->
             <status-mapping code="1" status="success" />
         </executable>
 
-    </recipe>
-
-    <recipe name="empty test">
     </recipe>
 </project>
