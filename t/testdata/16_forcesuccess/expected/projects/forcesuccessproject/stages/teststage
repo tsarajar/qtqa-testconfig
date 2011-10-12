@@ -1,0 +1,9 @@
+While attempting to do a dry run of forcesuccessproject stage teststage:
+ while parsing property `bad_property' (sourced from file projects/forcesuccessproject/stages/teststage/properties/bad_property):
+here is an unclosed reference: $(foobar
+                                       ^
+error: got end of string, expected `)' at SCRIPT line LINE.
+
+Normally I would now fail.  However, `forcesuccess' was set in CONFDIR/projects/forcesuccessproject/forcesuccess.
+Therefore I'm going to exit successfully.
+This probably indicates that this test is known to not yet be stable.

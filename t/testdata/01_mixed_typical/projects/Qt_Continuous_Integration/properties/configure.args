@@ -1,0 +1,1 @@
+-no-qt3support -nomake examples -nomake demos -nokia-developer

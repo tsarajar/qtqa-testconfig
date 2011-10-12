@@ -1,0 +1,6 @@
+While attempting to do a dry run of testproject stage teststage:
+ while parsing property `bad_property' (sourced from file projects/testproject/stages/teststage/properties/bad_property):
+invalid property marker: $foo
+                          ^
+error: expected { or (, got f
+(maybe you need \$f instead of $f ?) at SCRIPT line LINE.

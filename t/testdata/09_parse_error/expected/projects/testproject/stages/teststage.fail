@@ -1,0 +1,6 @@
+While attempting to do a dry run of testproject stage teststage:
+ while parsing property `bad_property' (sourced from file projects/testproject/stages/teststage/properties/bad_property):
+ends with dollar sign: $
+                        ^
+error: got end of string, expected `(' or `{'
+(last character in string was $, did you mean \$ ?) at SCRIPT line LINE.

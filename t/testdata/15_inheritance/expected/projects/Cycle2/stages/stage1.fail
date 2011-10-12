@@ -1,0 +1,2 @@
+While attempting to do a dry run of Cycle2 stage stage1:
+ Cyclic inheritance detected between CONFDIR/projects/Cycle1, CONFDIR/projects/Cycle2, CONFDIR/projects/Cycle3 at SCRIPT line LINE.

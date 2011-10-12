@@ -1,0 +1,2 @@
+While attempting to do a dry run of testproject stage teststage:
+ cyclic dependency detected between these properties: property_01 (from file CONFDIR/projects/testproject/stages/teststage/properties/property_01), property_02 (from file CONFDIR/projects/testproject/stages/teststage/properties/property_02) at SCRIPT line LINE.

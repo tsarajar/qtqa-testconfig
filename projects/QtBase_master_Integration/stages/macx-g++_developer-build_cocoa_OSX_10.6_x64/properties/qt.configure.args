@@ -1,0 +1,1 @@
+-silent -no-pch -nokia-developer -no-qt3support -force-pkg-config -qpa -prefix $(base.dir)/_install

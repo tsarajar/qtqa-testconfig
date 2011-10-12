@@ -1,0 +1,5 @@
+PULSE_00_USING_PROPERTY='This property uses another property: "string from source property"'
+PULSE_01_SOURCE_PROPERTY='string from source property'
+PULSE_BASE_DIR=BASE_DIR
+export PULSE_00_USING_PROPERTY PULSE_01_SOURCE_PROPERTY PULSE_BASE_DIR
+testscript

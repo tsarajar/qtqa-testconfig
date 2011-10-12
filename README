@@ -1,0 +1,234 @@
+This repository contains much of the configuration which defines what Pulse
+projects do.
+
+
+HOW IT WORKS:
+=============
+
+Each Pulse project is made up of several stages.  A stage is used to test
+a particular configuration of the tested product.  Like this:
+
+ Qt 4.7 Autotests
+  |
+  +-- linux-g++-32 Ubuntu 9.10
+  |
+  +-- win32-msvc2008 Windows XP
+  |
+  +-- macx-g++ cocoa OSX 10.6
+  |
+  ...etc
+
+The combination of project & stage names are used to look up all the settings
+for the current test.  Effectively, all Pulse projects and stages should
+call exactly the same top-level script, and that script looks up the settings
+for the test in a big hash, where the key is the combination of project and
+stage name, and the value is the settings and script needed to do the test.
+
+
+LAYOUT:
+=======
+
+Note that project and stage names have whitespace and special characters
+replaced with an `_' when mapping to a filename.
+
+ projects/<projectname>/properties
+
+  This directory contains one file named after each Pulse property to set.
+  During the test, the Pulse property named after the file will be set to
+  the first line of content in the file (properties with values containing
+  a newline character aren't supported).
+
+  The values here may refer to other Pulse properties using the same syntax
+  used in Pulse markup, e.g. ${my.property} or $(my.property).  If you
+  want to include a literal $ or \ in the value, you must escape it with
+  \ (i.e., use \$ or \\).  Having a cyclic dependency between properties
+  is an error.
+
+  These properties are global to all build stages for the given project.
+
+
+ projects/<projectname>/environment
+
+  This directory contains one file named after each environment variable to
+  set.  During the test, the environment variable named after the file will
+  be set to the first line of content in the file.
+
+  The values here may refer to other Pulse properties in the same way
+  as values in the `properties' directory.  Please note that environment
+  variables can refer to Pulse properties, but not to other environment
+  variables.
+
+  These environment variables are global to all build stages for the given
+  project.
+
+
+ projects/<projectname>/repository
+
+  This file contains a single line specifying an additional git repository
+  needed to do the test. The format is:
+  
+   git/uri#gitbranch directory
+   
+  ...which will cause the specified git repository and branch to be checked
+  out into the given directory.
+  
+  This will usually be:
+
+   qtgitreadonly:qa-dungeon/mainline.git _qadungeon
+
+  ... as most test scripts are located in this repository at time of writing.
+
+  This file is optional if no extra repo needs to be checked out for the test.
+
+
+ projects/<projectname>/script
+
+  This file contains a single line specifying the script to run in order to
+  do the test.
+
+  Please do not try to do anything tricky here. In particular, don't put any
+  test logic here! Just run a single command stored _outside_ of this
+  repository.
+
+  This will usually be something like:
+
+   perl _qadungeon/tests/<productname>/some_test_script.pl
+
+
+ projects/<projectname>/forcesuccess
+
+  If this file exists and contains a true value, then test.pl will exit with
+  a 0 exit code even when the test fails.
+
+  This is intended to be used for "trial" stages which should be put into Pulse
+  but may not yet be 100% reliable.  Using this, the stage can be put into the
+  true production environment without risk of causing build failures.  The
+  forcesuccess file can later be deleted once the stage is thought to be stable.
+
+  Note that `forcesuccess' is unable to catch certain classes of critical
+  failure, such as a hanging build.
+
+
+ projects/<projectname>/inherits
+ projects/<projectname>/stages/<stagename>/inherits
+
+  If present, these are symbolic links to another project or stage which the
+  current project or stage inherits from.  All settings from the parent
+  project/stage will apply, unless otherwise overriden.
+
+
+ projects/<projectname>/stages/<stagename>/properties
+ projects/<projectname>/stages/<stagename>/environment
+ projects/<projectname>/stages/<stagename>/repository
+ projects/<projectname>/stages/<stagename>/script
+ projects/<projectname>/stages/<stagename>/forcesuccess
+
+  These work identically to their counterparts in the project directory.
+  When a file exists in both the project and stage directory, the version
+  in the stage directory is preferred.  Therefore, one can set default
+  values in the project directory and override them on a per-stage
+  basis.
+
+
+ manual_overrides/properties
+ manual_overrides/environment
+
+  These work identically to their counterparts in the project directories
+  but they're applied only when running test.pl outside of Pulse.
+  Use this sparingly! It's mainly a hack to prevent people from
+  accidentally uploading binary packages, test results, etc.  Without
+  this, one could easily clobber real test artifacts when testing locally.
+
+  test.pl guesses that it's running outside of Pulse based on the
+  absence of certain environment variables set by Pulse.
+
+
+SHARING DATA:
+=============
+
+Symbolic links are followed when reading settings, so data can be shared
+between any projects and stages merely by creating links.
+
+The convention for this is to put values which are likely to be used 
+by many projects/stages into a directory under the top level, and link
+everything else to that.  For example:
+
+ projects/Qt_4.7_Autotests/stages/linux-g++-32_Ubuntu_9.10/testr.mkspec
+
+... would be a good candidate to be implemented by linking to:
+
+ standard_stages/linux-g++-32_Ubuntu_9.10/testr.mkspec
+
+The test.pl script doesn't read anything outside of `projects', so the
+naming of these shared directories doesn't matter.
+
+WARNING! Be careful when writing to this repository on Windows!
+You might accidentally break some links.
+Preferably, only make commits to this repository in operating systems
+where symbolic links are a first-class citizen.
+
+
+WHY IS IT DONE THIS WAY:
+========================
+
+When we initially started to use Pulse, all test logic was implemented
+in Pulse's own XML-based markup language. This worked fine for simple
+things, but for more complex projects with multiple people wanting to
+make changes, we hit several problems:
+
+ - the markup itself quickly became complex and unmaintainable.
+
+ - the scripts weren't under source control.
+
+ - difficult to test the scripts outside of Pulse.
+
+ - making a minor change to test behavior meant changing the XML,
+   which broke the parent-child inheritance between Pulse projects,
+   silently forking the test script and resulting in dozens of
+   almost-but-not-quite-identical test scripts.
+
+The next step to solve these problems was to move all of the test
+logic into external scripts kept in source control, and have these
+scripts decide what to do based on the value of "properties"
+maintained in Pulse. For example, one could have a single perl script
+capable of compile testing many different Qt configurations by reading
+the value of the "configure.args" Pulse property from its environment
+at runtime.
+
+This reduced but didn't fix the problem. As these scripts became more
+complex, most of the disadvantages of using the Pulse markup now
+applied to the Pulse properties:
+
+ - the Pulse configuration wasn't under source control.
+
+ - difficult to reproduce the configuration outside of Pulse.
+
+ - properties were copy-pasted / forked all over the place.
+
+The next logical improvement is to move as much of the Pulse
+configuration as possible outside of Pulse and into source control,
+which is what this approach implements.  As well as helping to solve
+the problems mentioned above, this provides additional benefits, such
+as being able to easily search and replace through Pulse
+configuration.
+
+
+LIMITATIONS:
+============
+
+Adding projects/stages in this source tree does _not_ automatically
+create the corresponding projects/stages in Pulse. That step needs
+to be done manually.
+
+There is no way to represent "required resources" here.  This means
+that the part of the Pulse configuration specifying which machines
+a stage can run on remains not under source control.  This can
+be mitigated by reducing our usage of "required resources" as much
+as possible.
+In particular, requiring a resource should ideally _not_ set any
+additional properties when doing a test - which is the exact
+opposite to our previous idea of "best practices" :-(
+
+There is (currently) no way to represent per-agent properties here.
+This could be implemented if it seems worth the effort.
+
