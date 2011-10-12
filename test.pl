@@ -1171,12 +1171,12 @@ USING CUSTOM SETTINGS:
 
 EXAMPLES:
 
- If you want to reproduce what the "Qt-Creator-master-4.7" rule does on your
+ If you want to reproduce what the "QtBase master Integration" rule does on your
  local Linux machine, the test procedure would go like this:
 
-    $ git clone git://scm.dev.nokia.troll.no/creator/mainline.git creator
-    $ cd creator
-    $ }.CONFDIR.q{/test.pl --project Qt-Creator-master-4.7 --stage "linux-g++-32 Ubuntu 9.10"
+    $ git clone git://gitorious.org/qt/qtbase
+    $ cd qtbase
+    $ }.CONFDIR.q{/test.pl --project "QtBase master Integration" --stage "linux-g++-32 Ubuntu 10.04 x86"
 };
 }
 
