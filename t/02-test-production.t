@@ -12,10 +12,10 @@ use IO::Capture::Stdout;
 
 do "$FindBin::Bin/../test.pl" or die "do test.pl: $!";
 
-sub clean_pulse_environment
+sub clean_environment
 {
     foreach my $key (keys %ENV) {
-        if ($key =~ /^PULSE_/i) {
+        if ($key =~ /^(?:PULSE|QTQA)_/i) {
             delete $ENV{$key};
         }
     }
@@ -28,13 +28,13 @@ sub test_stage
     my $project = $opts{project};
     my $stage = $opts{stage};
 
-    clean_pulse_environment;
+    clean_environment;
 
     # Pretend we are in Pulse to get as accurate as possible results.
     $ENV{PULSE_BUILD_NUMBER} = '123';
     $ENV{PULSE_BUILD_REASON} = 'faked by test script';
 
-    my $test = PulseTest->new(
+    my $test = QtQATest->new(
         project =>  $project,
         stage   =>  $stage,
         confdir =>  $confdir,
@@ -59,7 +59,7 @@ sub find_all_stages
     my $stages = $opts{stages};
     $stages = {} unless $stages;
 
-    my $test = PulseTest->new;
+    my $test = QtQATest->new;
 
     my $stagedir = $test->_follow_symlinks("$dir/stages");
 

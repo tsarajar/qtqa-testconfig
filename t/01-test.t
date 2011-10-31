@@ -15,10 +15,10 @@ sub debug
     print STDERR @_ unless 1;
 }
 
-sub clean_pulse_environment
+sub clean_environment
 {
     foreach my $key (keys %ENV) {
-        if ($key =~ /^PULSE_/i) {
+        if ($key =~ /^(?:PULSE|QTQA)_/i) {
             delete $ENV{$key};
         }
     }
@@ -67,12 +67,12 @@ sub test_stage
     }
 
 
-    clean_pulse_environment;
+    clean_environment;
 
-    # Override PulseTest's default setting of base.dir so we get predictable output
+    # Override QtQATest's default setting of base.dir so we get predictable output
     $ENV{PULSE_BASE_DIR} = "BASE_DIR";
 
-    # For this test case, force PulseTest to think we are in Pulse
+    # For this test case, force QtQATest to think we are in Pulse
     if ($confdir =~ /14_no_manual_overrides/) {
         $ENV{PULSE_BUILD_NUMBER} = "123";
         $ENV{PULSE_BUILD_REASON} = "faked by test script";
@@ -80,7 +80,7 @@ sub test_stage
 
     debug "    $project $stage:\n";
 
-    my $test = PulseTest->new(
+    my $test = QtQATest->new(
         project =>  $project,
         stage   =>  $stage,
         confdir =>  $confdir,

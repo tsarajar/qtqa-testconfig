@@ -45,7 +45,7 @@ use warnings;
 use 5.008;
 
 #==============================================================================
-package PulseTest;
+package QtQATest;
 
 use File::Basename;
 use File::Spec;
@@ -133,10 +133,11 @@ sub _readenvironment
         my $environment = basename $file;
         my $value = $self->_filecontents($file);
 
-        if ($environment =~ /^PULSE_(.*)$/i) {
-            my $rest = lc $1;
+        if ($environment =~ /^(PULSE|QTQA)_(.*)$/i) {
+            my $prefix = $1;
+            my $rest = lc $2;
             die "$file is named $environment\n"
-                ."Please don't set `PULSE_FOO' values with the environment directory; "
+                ."Please don't set `${prefix}_FOO' values with the environment directory; "
                 ."if you want to set a property called $rest then use the properties directory";
         }
 
@@ -175,7 +176,7 @@ sub _readproperties
         my $property = basename $file;
         my $value = $self->_filecontents($file);
 
-        my $environment = $self->_property_to_environment($property);
+        my ($environment) = $self->_property_to_environment($property);
         if ($self->{useenv} && exists($ENV{$environment})) {
             warn "environment variable $environment overrides the value in $file";
         }
@@ -211,9 +212,9 @@ sub _readenvironmentproperties
     my $self = shift;
     foreach my $key (keys %ENV) {
         $key = uc $key;
-        next unless ($key =~ /^PULSE_/i);
+        next unless ($key =~ /^(?:PULSE|QTQA)_/i);
 
-        # This environment variable is a Pulse property.
+        # This environment variable is a property.
         # However, there's no unambiguous way to map it back to the property name,
         # since replacing . with _ is lossy.
         # To give the nicest looking results, we'll try to match against the properties we've read
@@ -221,11 +222,13 @@ sub _readenvironmentproperties
         my @known_properties = keys %{$self->{properties}};
         push @known_properties, "base.dir";
         my $property;
-        foreach my $propertyname (@known_properties) {
-            my $this_env = $self->_property_to_environment($propertyname);
-            if ($this_env eq $key) {
-                $property = $propertyname;
-                last;
+        OUTER: foreach my $propertyname (@known_properties) {
+            my @this_env = $self->_property_to_environment($propertyname);
+            foreach my $this_env (@this_env) {
+                if ($this_env eq $key) {
+                    $property = $propertyname;
+                    last OUTER;
+                }
             }
         }
 
@@ -233,7 +236,7 @@ sub _readenvironmentproperties
         # which ones should be dots.
         if (!$property) {
             $property = $key;
-            $property =~ s/^PULSE_//;
+            $property =~ s/^(?:PULSE|QTQA)_//;
             $property = lc $property;
         }
 
@@ -951,11 +954,21 @@ sub _property_to_environment
     my $self = shift;
 
     my $out = shift;
+
+    # If we read the property from environment, ensure we return the same
+    # env var used to set it.
+    if (exists $self->{properties}{$out}) {
+        my $p = $self->{properties}{$out};
+        if ($p->{source} eq SOURCE_ENVIRONMENT) {
+            return $p->{env};
+        }
+    }
+
     $out = uc $out;
     $out =~ tr/./_/;
     $out =~ tr/-/_/;
 
-    return "PULSE_$out";
+    return ("QTQA_$out", "PULSE_$out");
 }
 
 sub _gitcommands
@@ -1013,7 +1026,7 @@ sub dryrun
     $lastbit = "" if ($^O eq "MSWin32");
 
     foreach my $key (sort keys %{$properties}) {
-        my $pulse_key = $self->_property_to_environment($key);
+        my ($pulse_key) = $self->_property_to_environment($key);
 
         $lastbit .= " $pulse_key" if ($^O ne "MSWin32");
 
@@ -1110,7 +1123,7 @@ sub run
     my $environment = $self->{environment};
 
     foreach my $key (sort keys %{$properties}) {
-        my $pulse_key = $self->_property_to_environment($key);
+        my ($pulse_key) = $self->_property_to_environment($key);
         $ENV{$pulse_key} = $properties->{$key}->{value};
     }
     foreach my $key (sort keys %{$environment}) {
@@ -1135,18 +1148,19 @@ use constant CONFDIR => $FindBin::RealBin;
 sub usage {
     print
 
-q{Usage: test.pl --project Pulse-project-name --stage Pulse-stage-name \
+q{Usage: test.pl --project project-name --stage stage-name \
   [ --dry-run ] [ --use-env ]
 
- Run the test procedure for the given Pulse project and stage on the local machine.
+ Run the test procedure for the given project and stage on the local machine.
 
  This script should be run from within the source repository of the tested product.
 
  Configuration will be read from }.CONFDIR.q{
  and run a test using the environment shown in that directory.
 
- When running the script within Pulse, the `--project' and `--stage' options should
- be omitted.  The appropriate values will be read from the environment.
+ When running the script within the Pulse CI tool, the `--project' and
+ `--stage' options should be omitted.  The appropriate values will be read from
+ the environment.
 
 OPTIONS:
 
@@ -1162,9 +1176,9 @@ USING CUSTOM SETTINGS:
   If a property is already set in the environment, then it takes precedence over the
   configuration in }.CONFDIR.q{ .
 
-  For instance, if `incredibuild.enabled' is set to `1' in the Pulse configuration, but
+  For instance, if `incredibuild.enabled' is set to `1' in this repository, but
   you don't have incredibuild available, you can disable it by setting the
-  PULSE_INCREDIBUILD_ENABLED environment variable to `0'.
+  QTQA_INCREDIBUILD_ENABLED environment variable to `0'.
 
   The script will warn about all properties which have been overridden in the
   environment in this way.
@@ -1239,7 +1253,7 @@ sub main {
         $stage = $stage_env;
     }
 
-    my $test = PulseTest->new(
+    my $test = QtQATest->new(
         project =>  $project,
         stage   =>  $stage,
         useenv  =>  $useenv,

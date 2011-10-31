@@ -1,6 +1,6 @@
 PULSE_BASE_DIR=BASE_DIR
-PULSE_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_NO_SUBSTITUTION='Here'"'"'s a thing: $(source_property) and backslash: `\'"'"' and dollar sign: $'
-PULSE_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_SUBSTITUTION='here'"'"'s a thing: string from source property and again: string from source property and backslash: \ and dollar sign: $'
-PULSE_SOURCE_PROPERTY='string from source property'
-export PULSE_BASE_DIR PULSE_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_NO_SUBSTITUTION PULSE_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_SUBSTITUTION PULSE_SOURCE_PROPERTY
+QTQA_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_NO_SUBSTITUTION='Here'"'"'s a thing: $(source_property) and backslash: `\'"'"' and dollar sign: $'
+QTQA_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_SUBSTITUTION='here'"'"'s a thing: string from source property and again: string from source property and backslash: \ and dollar sign: $'
+QTQA_SOURCE_PROPERTY='string from source property'
+export PULSE_BASE_DIR QTQA_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_NO_SUBSTITUTION QTQA_PROPERTY_CONTAINING_ESCAPE_CHARACTERS_AND_SUBSTITUTION QTQA_SOURCE_PROPERTY
 testscript
