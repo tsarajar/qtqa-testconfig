@@ -1,0 +1,1 @@
+-silent -no-pch -nokia-developer -qtnamespace TestNamespace -qtlibinfix TestInfix -separate-debug-info -no-qt3support -force-pkg-config
