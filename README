@@ -38,8 +38,9 @@ replaced with an `_' when mapping to a filename.
   the first line of content in the file (properties with values containing
   a newline character aren't supported).
 
-  The values here may refer to other Pulse properties using the same syntax
-  used in Pulse markup, e.g. ${my.property} or $(my.property).  If you
+  The values here may refer to other Pulse properties using the syntax
+  $(my.property), and may refer to environment variables using the syntax
+  ${MY_ENVIRONMENT_VARIABLE}.  If you
   want to include a literal $ or \ in the value, you must escape it with
   \ (i.e., use \$ or \\).  Having a cyclic dependency between properties
   is an error.

@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 101;
+use Test::More tests => 103;
 use FindBin;
 use File::Basename;
 use IO::Capture::Stdout;

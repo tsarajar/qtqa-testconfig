@@ -1,0 +1,1 @@
+env ${PULSE_BASE_DIR} should be same as prop $(base.dir)

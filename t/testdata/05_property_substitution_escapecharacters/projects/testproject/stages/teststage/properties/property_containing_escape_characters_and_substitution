@@ -1,1 +1,1 @@
-here's a thing: $(source_property) and again: ${source_property} and backslash: \\ and dollar sign: \$
+here's a thing: $(source_property) and again: $(source_property) and backslash: \\ and dollar sign: \$

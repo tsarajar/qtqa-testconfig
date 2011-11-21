@@ -1,1 +1,1 @@
--prefix ${base.dir}\\_install -tests -examples -symbian-unfrozen
+-prefix $(base.dir)\\_install -tests -examples -symbian-unfrozen

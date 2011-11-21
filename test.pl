@@ -57,8 +57,9 @@ use Carp qw(croak);
 
 use constant CONFDIR => $FindBin::RealBin;
 
-use constant TOKEN_LITERAL  =>  "literal";
-use constant TOKEN_PROPERTY =>  "property";
+use constant TOKEN_LITERAL     => "literal";
+use constant TOKEN_PROPERTY    => "property";
+use constant TOKEN_ENVIRONMENT => "environment";
 
 use constant SOURCE_FILE        =>  "file";
 use constant SOURCE_ENVIRONMENT =>  "environment";
@@ -433,9 +434,9 @@ sub _tokenize_property
     }
 
     use constant STATE_READING_LITERAL  =>  "reading_literal";
-    use constant STATE_READING_PROPERTY_CURLYBRACE =>  "reading_property_curlybrace";
+    use constant STATE_READING_ENVIRONMENT_CURLYBRACE =>  "reading_env_curlybrace";
     use constant STATE_READING_PROPERTY_PARENTHESIS =>  "reading_property_parenthesis";
-    use constant STATE_PROPERTY_MARKER  =>  "property_marker";
+    use constant STATE_SUBSTITUTION_MARKER  =>  "subst_marker";
     use constant STATE_ESCAPE_CHARACTER =>  "escape_character";
 
     my $current_token = "";
@@ -453,7 +454,7 @@ sub _tokenize_property
                 $state = STATE_ESCAPE_CHARACTER;
             }
             elsif ($c eq '$') {
-                $state = STATE_PROPERTY_MARKER;
+                $state = STATE_SUBSTITUTION_MARKER;
             }
 
             # Are we still reading a literal?
@@ -469,12 +470,26 @@ sub _tokenize_property
             }
         }
 
-
-        elsif ($state eq STATE_READING_PROPERTY_CURLYBRACE
-            || $state eq STATE_READING_PROPERTY_PARENTHESIS)
+        elsif ($state eq STATE_READING_ENVIRONMENT_CURLYBRACE)
         {
-            if (($c eq '}' && $state eq STATE_READING_PROPERTY_CURLYBRACE)
-            ||  ($c eq ')' && $state eq STATE_READING_PROPERTY_PARENTHESIS))
+            if ($c eq '}')
+            {
+                $state = STATE_READING_LITERAL;
+                push @tokens, {
+                    type    =>  TOKEN_ENVIRONMENT,
+                    data    =>  $current_token,
+                };
+                $current_token = "";
+            }
+            else
+            {
+                $current_token .= $c;
+            }
+        }
+
+        elsif ($state eq STATE_READING_PROPERTY_PARENTHESIS)
+        {
+            if ($c eq ')')
             {
                 $state = STATE_READING_LITERAL;
                 push @tokens, {
@@ -489,10 +504,9 @@ sub _tokenize_property
             }
         }
 
-
-        elsif ($state eq STATE_PROPERTY_MARKER) {
+        elsif ($state eq STATE_SUBSTITUTION_MARKER) {
             if ($c eq '{') {
-                $state = STATE_READING_PROPERTY_CURLYBRACE;
+                $state = STATE_READING_ENVIRONMENT_CURLYBRACE;
             }
             elsif ($c eq '(') {
                 $state = STATE_READING_PROPERTY_PARENTHESIS;
@@ -549,7 +563,7 @@ sub _tokenize_property
             $current_token = "";
         }
     }
-    elsif ($state eq STATE_READING_PROPERTY_CURLYBRACE) {
+    elsif ($state eq STATE_READING_ENVIRONMENT_CURLYBRACE) {
         die $self->_format_parse_error(
             input           =>  $property->{value},
             errorposition   =>  $i+1,
@@ -563,7 +577,7 @@ sub _tokenize_property
             errorstring     => "got end of string, expected `)'",
         );
     }
-    elsif ($state eq STATE_PROPERTY_MARKER) {
+    elsif ($state eq STATE_SUBSTITUTION_MARKER) {
         die $self->_format_parse_error(
             input           =>  $property->{value},
             errorposition   =>  $i+1,
@@ -663,6 +677,15 @@ sub _resolve_property
             }
             else {
                 # property does not exist at all - just use an empty value.
+                defined($resolved) or $resolved = "";
+            }
+        }
+        elsif ($token->{type} eq TOKEN_ENVIRONMENT) {
+            my $data = $token->{data};
+            if (exists $ENV{$data}) {
+                $resolved .= $ENV{$data};
+            }
+            else {
                 defined($resolved) or $resolved = "";
             }
         }

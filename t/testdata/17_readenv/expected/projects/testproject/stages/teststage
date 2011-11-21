@@ -1,0 +1,4 @@
+PULSE_BASE_DIR=BASE_DIR
+QTQA_ENV_VS_PROP='env BASE_DIR should be same as prop BASE_DIR'
+export PULSE_BASE_DIR QTQA_ENV_VS_PROP
+testscript
