@@ -1,1 +1,1 @@
--no-incredibuild-xge -release -no-qt3support
+-no-incredibuild-xge -release -no-qt3support -fast
