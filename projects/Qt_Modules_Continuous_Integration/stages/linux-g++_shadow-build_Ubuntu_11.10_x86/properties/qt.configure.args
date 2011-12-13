@@ -1,1 +1,0 @@
--opensource -confirm-license -prefix $(shadowbuild.dir)/install
