@@ -1,1 +1,1 @@
--silent -no-pch -nokia-developer -no-qt3support -force-pkg-config -xcb -prefix $(base.dir)/_install
+-silent -no-pch -nokia-developer -force-pkg-config -xcb -prefix $(base.dir)/_install

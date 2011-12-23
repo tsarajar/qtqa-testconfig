@@ -1,1 +1,1 @@
--silent -no-pch -nokia-developer -no-qt3support -force-pkg-config
+-silent -no-pch -nokia-developer -force-pkg-config
