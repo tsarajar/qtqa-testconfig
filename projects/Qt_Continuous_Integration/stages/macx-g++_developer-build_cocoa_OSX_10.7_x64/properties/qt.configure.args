@@ -1,1 +1,1 @@
--silent -no-pch -nokia-developer -cocoa -force-pkg-config
+-silent -no-pch -developer-build -opensource -confirm-license -cocoa -force-pkg-config
