@@ -1,1 +1,1 @@
--silent -no-pch
+-silent -no-pch -release
