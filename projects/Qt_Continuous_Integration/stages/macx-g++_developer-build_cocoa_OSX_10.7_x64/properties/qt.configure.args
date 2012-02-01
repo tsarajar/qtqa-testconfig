@@ -1,1 +1,0 @@
--silent -no-pch -developer-build -opensource -confirm-license -cocoa -force-pkg-config
