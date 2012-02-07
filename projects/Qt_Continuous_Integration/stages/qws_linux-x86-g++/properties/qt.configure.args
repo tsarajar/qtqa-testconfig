@@ -1,0 +1,1 @@
+-developer-build -confirm-license -opensource -no-qt3support -embedded x86 -qt-gfx-vnc -qt-gfx-transformed -depths 16,32 -qvfb -silent -no-pch
