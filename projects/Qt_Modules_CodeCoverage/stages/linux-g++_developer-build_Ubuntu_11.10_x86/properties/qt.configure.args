@@ -1,1 +1,1 @@
--developer-build -opensource -confirm-license -force-pkg-config -xcb
+-developer-build -opensource -confirm-license -force-pkg-config -xcb -make tests

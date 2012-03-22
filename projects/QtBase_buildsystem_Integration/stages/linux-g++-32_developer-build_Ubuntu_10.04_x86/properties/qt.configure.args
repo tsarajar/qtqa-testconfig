@@ -1,1 +1,1 @@
--silent -no-pch -developer-build -opensource -confirm-license -force-pkg-config -xcb -prefix $(base.dir)/_install
+-silent -no-pch -developer-build -opensource -confirm-license -force-pkg-config -xcb -prefix $(base.dir)/_install -make tests
