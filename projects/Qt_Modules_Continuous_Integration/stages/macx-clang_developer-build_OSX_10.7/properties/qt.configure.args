@@ -1,1 +1,1 @@
--silent -no-pch -release -developer-build -opensource -confirm-license -force-pkg-config -make tests
+-silent -no-pch -release -developer-build -opensource -confirm-license -force-pkg-config -make libs -make examples -make tests

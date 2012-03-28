@@ -1,1 +1,1 @@
--opensource -confirm-license -prefix $(base.dir)\\qtbase -qpa -make tests
+-opensource -confirm-license -prefix $(base.dir)\\qtbase -qpa -make libs -make examples -make tests

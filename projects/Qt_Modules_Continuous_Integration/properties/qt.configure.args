@@ -1,1 +1,1 @@
--opensource -confirm-license -prefix $(qt.install.dir) -make tests
+-opensource -confirm-license -prefix $(qt.install.dir) -make libs -make examples -make tests
