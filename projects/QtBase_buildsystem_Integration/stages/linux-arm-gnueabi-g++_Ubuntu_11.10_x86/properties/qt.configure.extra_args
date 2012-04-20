@@ -1,1 +1,0 @@
--silent -no-pch -separate-debug-info -no-xcb -no-eglfs -arch armv7 -xplatform linux-arm-gnueabi-g++ -opengl es2 -D MESA_EGL_NO_X11_HEADERS -Wno-psabi
