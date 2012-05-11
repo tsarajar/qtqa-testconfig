@@ -1157,6 +1157,9 @@ sub run
     if ($@) {
         $self->_maybe_die($@);
         return;
+    } elsif ($self->{forcesuccess}) {
+        print "Note: forcesuccess is set, but the test script succeeded. "
+             ."This may indicate it is safe to remove forcesuccess.\n";
     }
 }
 
