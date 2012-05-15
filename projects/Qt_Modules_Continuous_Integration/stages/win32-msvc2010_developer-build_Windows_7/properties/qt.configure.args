@@ -1,1 +1,0 @@
--opensource -confirm-license -developer-build -make libs -make examples -make tests
