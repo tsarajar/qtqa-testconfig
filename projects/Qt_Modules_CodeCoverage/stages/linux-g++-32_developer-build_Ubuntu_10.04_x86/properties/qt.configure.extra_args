@@ -1,1 +1,1 @@
--silent -no-pch -separate-debug-info -nomake examples
+-silent -no-pch -separate-debug-info -nomake examples -no-c++11
