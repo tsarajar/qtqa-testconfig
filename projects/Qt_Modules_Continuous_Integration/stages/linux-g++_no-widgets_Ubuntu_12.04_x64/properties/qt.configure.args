@@ -1,0 +1,1 @@
+-silent -no-pch -no-widgets -opensource -confirm-license -separate-debug-info -make libs -make examples -make tests
