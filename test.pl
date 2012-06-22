@@ -1163,6 +1163,44 @@ sub run
     }
 }
 
+sub _get_project_config_from_ci_tool
+{
+    # human readable name of CI environment in use
+    my $ci_environment;
+    # human readable list of supported CI Environments
+    my $possible_ci_environments = "Pulse or Jenkins";
+
+    # first look for project/stage values from Pulse environment
+    my $project_env = $ENV{PULSE_PROJECT};
+    my $stage_env = $ENV{PULSE_STAGE};
+
+    if ($project_env || $stage_env) {
+        $ci_environment = "Pulse";
+    }
+
+    # The JOB_NAME environment variable will be set when test.pl is run from Jenkins and have a value like:
+    #   "QtBase_master_Integration/cfg=linux-g++-32_developer-build_Ubuntu_10.04_x86"
+    if ($ENV{JOB_NAME}) {
+        if ($ENV{JOB_NAME} =~ /^([^\/]+)\/cfg=(.+)$/i) {
+            if ($project_env) {
+                print STDERR "Overriding project name of \'$project_env\' set by $ci_environment environment.\n";
+            }
+            if ($stage_env) {
+                print STDERR "Overriding stage name of \'$stage_env\' set by $ci_environment environment.\n";
+            }
+            $project_env = $1;
+            $stage_env = $2;
+        } else {
+            print STDERR "Warning: Unable to determine project/stage from JOB_NAME environment variable used by Jenkins.\n"
+                . "Expected JOB_NAME environment variable to be set to value like:\n\t'QtBase_master_Integration/cfg=linux-g++-32_developer-build_Ubuntu_10.04_x86'\n";
+        }
+        $ci_environment = "Jenkins";
+    }
+
+
+    return ($project_env, $stage_env, $ci_environment, $possible_ci_environments);
+}
+
 #==============================================================================
 package main;
 
@@ -1184,7 +1222,7 @@ q{Usage: test.pl --project project-name --stage stage-name \
  Configuration will be read from }.CONFDIR.q{
  and run a test using the environment shown in that directory.
 
- When running the script within the Pulse CI tool, the `--project' and
+ When running the script within the Pulse or Jenkins CI tool, the `--project' and
  `--stage' options should be omitted.  The appropriate values will be read from
  the environment.
 
@@ -1223,8 +1261,7 @@ EXAMPLES:
 sub main {
     my $project;
     my $stage;
-    my $project_env = $ENV{PULSE_PROJECT};
-    my $stage_env = $ENV{PULSE_STAGE};
+    my ($project_env, $stage_env, $ci_environment, $possible_ci_environments) = QtQATest::_get_project_config_from_ci_tool( );
     my $dryrun;
     my $useenv;
     my $help;
@@ -1246,20 +1283,20 @@ sub main {
     }
 
     if (!$project && !$project_env) {
-        print STDERR "--project was omitted and PULSE_PROJECT environment variable wasn't set.\n";
+        print STDERR "--project was omitted and the project to use could not be determined from $possible_ci_environments environments.\n";
         usage;
         exit 2;
     }
 
     if (!$stage && !$stage_env) {
-        print STDERR "--stage was omitted and PULSE_STAGE environment variable wasn't set.\n";
+        print STDERR "--stage was omitted and the stage to use could not be determined from $possible_ci_environments environments.\n";
         usage;
         exit 2;
     }
 
     if ($project) {
         if ($project_env) {
-            warn "`--project' option overrides PULSE_PROJECT environment variable. "
+            warn "`--project' option overrides value set in $ci_environment. "
                 ."Please pick just one method of specifying the project.";
         }
         $ENV{PULSE_PROJECT} = $project;
@@ -1270,7 +1307,7 @@ sub main {
 
     if ($stage) {
         if ($stage_env) {
-            warn "`--stage' option overrides PULSE_STAGE environment variable. "
+            warn "`--stage' option overrides value set in $ci_environment. "
                 ."Please pick just one method of specifying the project.";
         }
         $ENV{PULSE_STAGE} = $stage;
