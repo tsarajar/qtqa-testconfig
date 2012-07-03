@@ -1179,9 +1179,27 @@ sub _get_project_config_from_ci_tool
     }
 
     # The JOB_NAME environment variable will be set when test.pl is run from Jenkins and have a value like:
-    #   "QtBase_master_Integration/cfg=linux-g++-32_developer-build_Ubuntu_10.04_x86"
+    #   "QtBase_master_Integration/key1=val1,cfg=linux-g++-32_developer-build_Ubuntu_10.04_x86,key2=val2"
     if ($ENV{JOB_NAME}) {
-        if ($ENV{JOB_NAME} =~ /^([^\/]+)\/cfg=(.+)$/i) {
+        if ($ENV{JOB_NAME} =~
+            qr{
+                \A
+
+                # Upstream project name ... ( e.g. QtBase_master_Integration )
+                ([^/]+)/
+
+                # Zero or more keys other than 'cfg' ... (e.g. key1=val2,key2=val2
+                (?:
+                    [^,]+ = [^,]+ ,
+                )*?
+
+                # cfg key
+                cfg = ([^,]+)
+
+                # may or may not be more keys
+                (?:,|\z)
+            }xmsi
+        ) {
             if ($project_env) {
                 print STDERR "Overriding project name of \'$project_env\' set by $ci_environment environment.\n";
             }

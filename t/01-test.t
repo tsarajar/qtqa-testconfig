@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 103;
+use Test::More tests => 127;
 use FindBin;
 use File::Basename;
 use IO::Capture::Stdout;
@@ -178,6 +178,71 @@ sub test_projects
     }
 }
 
+sub test_environment
+{
+    clean_environment;
+
+    my ($project_env, $stage_env, $ci_environment, $possible_ci_environments);
+
+    # Clean environment: nothing set
+    ($project_env, $stage_env, $ci_environment, $possible_ci_environments) = QtQATest::_get_project_config_from_ci_tool( );
+    ok( !$project_env, 'no project_env set with clean environment' );
+    ok( !$stage_env, 'no stage_env set with clean environment' );
+    ok( !$ci_environment, 'no ci_environment set with clean environment' );
+    is( $possible_ci_environments, 'Pulse or Jenkins', 'possible envs as expected with clean environment' );
+
+    # Basic Pulse setup
+    {
+        local $ENV{ PULSE_PROJECT } = 'a project';
+        local $ENV{ PULSE_STAGE } = 'a stage';
+        ($project_env, $stage_env, $ci_environment, $possible_ci_environments) = QtQATest::_get_project_config_from_ci_tool( );
+        is( $project_env, 'a project', 'project_env set with pulse environment' );
+        is( $stage_env, 'a stage', 'stage_env set with pulse environment' );
+        is( $ci_environment, 'Pulse', 'pulse ci_environment set with pulse environment' );
+        is( $possible_ci_environments, 'Pulse or Jenkins', 'possible envs as expected with pulse environment' );
+    }
+
+    # Basic Jenkins setup
+    {
+        local $ENV{ JOB_NAME } = 'a_job/cfg=a_cfg';
+        ($project_env, $stage_env, $ci_environment, $possible_ci_environments) = QtQATest::_get_project_config_from_ci_tool( );
+        is( $project_env, 'a_job', 'project_env set with jenkins environment' );
+        is( $stage_env, 'a_cfg', 'stage_env set with jenkins environment' );
+        is( $ci_environment, 'Jenkins', 'jenkins ci_environment set with jenkins environment' );
+        is( $possible_ci_environments, 'Pulse or Jenkins', 'possible envs as expected with jenkins environment' );
+    }
+
+    # Jenkins setup, other key before
+    {
+        local $ENV{ JOB_NAME } = 'other_job/key1=val1,cfg=other_cfg';
+        ($project_env, $stage_env, $ci_environment, $possible_ci_environments) = QtQATest::_get_project_config_from_ci_tool( );
+        is( $project_env, 'other_job', 'project_env set with jenkins environment' );
+        is( $stage_env, 'other_cfg', 'stage_env set with jenkins environment' );
+        is( $ci_environment, 'Jenkins', 'jenkins ci_environment set with jenkins environment' );
+        is( $possible_ci_environments, 'Pulse or Jenkins', 'possible envs as expected with jenkins environment' );
+    }
+
+    # Jenkins setup, other key after
+    {
+        local $ENV{ JOB_NAME } = 'another_job/cfg=another_cfg,key1=val1';
+        ($project_env, $stage_env, $ci_environment, $possible_ci_environments) = QtQATest::_get_project_config_from_ci_tool( );
+        is( $project_env, 'another_job', 'project_env set with jenkins environment' );
+        is( $stage_env, 'another_cfg', 'stage_env set with jenkins environment' );
+        is( $ci_environment, 'Jenkins', 'jenkins ci_environment set with jenkins environment' );
+        is( $possible_ci_environments, 'Pulse or Jenkins', 'possible envs as expected with jenkins environment' );
+    }
+
+    # Jenkins setup, other key before and after
+    {
+        local $ENV{ JOB_NAME } = 'great_job/key1=val1,cfg=great_cfg,key2=val2';
+        ($project_env, $stage_env, $ci_environment, $possible_ci_environments) = QtQATest::_get_project_config_from_ci_tool( );
+        is( $project_env, 'great_job', 'project_env set with jenkins environment' );
+        is( $stage_env, 'great_cfg', 'stage_env set with jenkins environment' );
+        is( $ci_environment, 'Jenkins', 'jenkins ci_environment set with jenkins environment' );
+        is( $possible_ci_environments, 'Pulse or Jenkins', 'possible envs as expected with jenkins environment' );
+    }
+}
+
 my $testdatadir = "$FindBin::Bin/testdata";
 
 debug "$testdatadir:\n";
@@ -188,3 +253,4 @@ foreach my $testdata (glob "$testdatadir/*") {
     test_projects(testdata => $testdata);
 }
 
+test_environment();
