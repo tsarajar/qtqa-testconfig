@@ -1,1 +1,1 @@
--silent -no-pch -developer-build -opensource -confirm-license -force-pkg-config -prefix $(base.dir)/_install -make libs -make examples -make tests
+-silent -no-pch -developer-build -opensource -confirm-license -force-pkg-config -prefix $(base.dir)/_install -make libs -make tools -make examples -make tests
