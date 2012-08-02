@@ -1313,9 +1313,9 @@ sub main {
     }
 
     if ($project) {
-        if ($project_env) {
-            warn "`--project' option overrides value set in $ci_environment. "
-                ."Please pick just one method of specifying the project.";
+        if ($project_env && $project_env ne $project) {
+            warn "Note: --project \"$project\" option overrides value from "
+                ."$ci_environment, \"$project_env\".\n"
         }
         $ENV{PULSE_PROJECT} = $project;
     }
@@ -1324,9 +1324,9 @@ sub main {
     }
 
     if ($stage) {
-        if ($stage_env) {
-            warn "`--stage' option overrides value set in $ci_environment. "
-                ."Please pick just one method of specifying the project.";
+        if ($stage_env && $stage_env ne $stage) {
+            warn "Note: --stage \"$stage\" option overrides value from "
+                ."$ci_environment, \"$stage_env\".\n"
         }
         $ENV{PULSE_STAGE} = $stage;
     }
