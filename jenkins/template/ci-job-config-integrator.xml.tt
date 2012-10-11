@@ -263,18 +263,32 @@ def computer = manager.build.getBuiltOn().toComputer()
 def channel = computer.getChannel()
 computer.setTemporarilyOffline(true, SimpleOfflineCause.create(new OfflineMessage()))
 
-try {
-  RemotingDiagnostics.executeGroovy( """
+def rebooted = 0
 
-    if (Functions.isWindows()) {
-      'shutdown /r /t 10 /c "Restarting after Jenkins test completed"'.execute()
-    } else {
-      "sudo reboot".execute()
-    }
+for (i in 1..10) {
+  try {
+    RemotingDiagnostics.executeGroovy( """
 
-  """, channel )
-} catch (Exception e) {
-  /* TODO: do something with e; going to the build log confuses people, but it should be reported somewhere... */
+      if (Functions.isWindows()) {
+        'shutdown /r /t 10 /c "Restarting after Jenkins test completed"'.execute()
+      } else {
+        "sudo reboot".execute()
+      }
+
+    """, channel )
+    rebooted = i
+    break
+  } catch (Exception e) {
+    manager.addWarningBadge("could not reboot [attempt " + i + "]: " + e.toString())
+  }
+}
+
+if (rebooted == 0) {
+  /* couldn't reboot after several tries?  don't let the node stay offline forever. */
+  computer.setTemporarilyOffline(false, null)
+  manager.addShortText("reboot failed")
+} else if (rebooted > 1) {
+  manager.addShortText("rebooted after " + rebooted + " attempts")
 }
 
 s = new Socket("localhost", 7182)
