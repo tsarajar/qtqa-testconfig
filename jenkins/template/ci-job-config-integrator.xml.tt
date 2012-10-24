@@ -242,8 +242,20 @@ perl _testconfig/test.pl --project "[% testconfig_project %]"
       <groovyScript>
 import hudson.slaves.OfflineCause.SimpleOfflineCause
 import hudson.util.RemotingDiagnostics
+import java.io.PrintWriter
+import java.io.StringWriter
 
-/* FIXME: why cannot we import jenkins.util.NonLocalizable ? */
+// returns full stack trace of a throwable 't' as a string
+def getStackTrace(t) {
+    def sw = new StringWriter()
+    def pw = new PrintWriter(sw, true)
+    t.printStackTrace(pw)
+    pw.flush()
+    sw.flush()
+    return sw.toString()
+}
+
+// FIXME: why cannot we import jenkins.util.NonLocalizable ?
 class OfflineMessage extends org.jvnet.localizer.Localizable {
   def message
   OfflineMessage() {
@@ -261,34 +273,50 @@ class OfflineMessage extends org.jvnet.localizer.Localizable {
 
 def computer = manager.build.getBuiltOn().toComputer()
 def channel = computer.getChannel()
-computer.setTemporarilyOffline(true, SimpleOfflineCause.create(new OfflineMessage()))
+def cause = SimpleOfflineCause.create(new OfflineMessage())
 
 def rebooted = 0
 
-for (i in 1..10) {
+for (i in 1..5) {
   try {
     RemotingDiagnostics.executeGroovy( """
 
       if (Functions.isWindows()) {
         'shutdown /r /t 10 /c "Restarting after Jenkins test completed"'.execute()
       } else {
-        "sudo reboot".execute()
+        "sudo -n reboot".execute()
       }
 
     """, channel )
     rebooted = i
     break
   } catch (Exception e) {
-    manager.addWarningBadge("could not reboot [attempt " + i + "]: " + e.toString())
+    manager.addWarningBadge("could not reboot [attempt " + i + "]: " + getStackTrace(e))
+    // disconnecting the computer, waiting for it to reconnect and reinitializing the
+    // channel helps to recover from "Could not initialize class org.codehause.groovy.runtime.InvokerHelper",
+    // which occurs on slaves sometimes (with Jenkins 1.466) for unknown reasons.
+    computer.disconnect(cause).get()
+    sleep(30000)
+    channel = computer.getChannel()
+    def attempts = 0
+    while (channel == null &amp;&amp; ++attempts &lt; 5) {
+      sleep(30000)
+      channel = computer.getChannel()
+    }
   }
 }
 
 if (rebooted == 0) {
-  /* couldn't reboot after several tries?  don't let the node stay offline forever. */
-  computer.setTemporarilyOffline(false, null)
   manager.addShortText("reboot failed")
 } else if (rebooted > 1) {
   manager.addShortText("rebooted after " + rebooted + " attempts")
+} else {
+  manager.addInfoBadge("rebooted after build")
+}
+
+if (rebooted) {
+  // make sure jobs cannot be scheduled until after the node reboots
+  computer.setTemporarilyOffline(true, cause)
 }
 
 s = new Socket("localhost", 7182)
