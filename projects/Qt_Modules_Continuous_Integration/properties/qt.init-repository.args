@@ -1,1 +1,1 @@
---mirror qtgitreadonly:
+--mirror qtgitreadonly: --mirror-webkit qtgitreadonly:qtwebkit/qt5-module.git
