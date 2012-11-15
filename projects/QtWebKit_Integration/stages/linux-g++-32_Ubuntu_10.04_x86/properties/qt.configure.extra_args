@@ -1,0 +1,1 @@
+-silent -no-pch -separate-debug-info -nomake tests -nomake examples
