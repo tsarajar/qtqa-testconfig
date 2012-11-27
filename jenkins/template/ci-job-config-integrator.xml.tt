@@ -18,7 +18,7 @@
         <hudson.model.StringParameterDefinition>
           <name>qt_ci_git_url</name>
           <description>Git URL for code under test</description>
-          <defaultValue>git://qt.gitorious.org/[% gerrit_project %]</defaultValue>
+          <defaultValue>ssh://codereview.qt-project.org/[% gerrit_project %]</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>qt_ci_git_ref</name>
@@ -205,7 +205,7 @@ call git init _testconfig
 if errorlevel 1 exit /b 1
 cd _testconfig
 call git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/*
-call git fetch git://gitorious.org/qtqa/testconfig.git +refs/heads/*:refs/remotes/origin/*
+call git fetch ssh://codereview.qt-project.org/qtqa/testconfig.git +refs/heads/*:refs/remotes/origin/*
 if errorlevel 1 exit /b 1
 call git reset --hard origin/master
 if errorlevel 1 exit /b 1
@@ -234,7 +234,7 @@ git reset --hard refs/testing
 git init _testconfig
 cd _testconfig
 git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/* || true
-git fetch git://gitorious.org/qtqa/testconfig +refs/heads/*:refs/remotes/origin/*
+git fetch ssh://codereview.qt-project.org/qtqa/testconfig +refs/heads/*:refs/remotes/origin/*
 git reset --hard origin/master
 cd ..
 perl _testconfig/test.pl --project "[% testconfig_project %]"
