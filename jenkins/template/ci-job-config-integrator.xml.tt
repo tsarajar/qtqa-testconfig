@@ -178,6 +178,22 @@ git fetch --verbose qt-gerrit-mirror:[% gerrit_project %] +refs/heads/[% branch 
       <buildStep class="hudson.tasks.BatchFile">
         <!-- GIT_BRANCH set for compatibility with Git SCM plugin -->
         <command>
+echo %cfg%|findstr /i mingw47 >nul:
+if %errorlevel%==0 (
+set "PATH=%PATH_MINGW47%;%PATH%"
+set "LIB=%LIB_MINGW47%"
+set "LIBPATH=%LIBPATH_MINGW47%"
+set "INCLUDE=%INCLUDE_MINGW47%"
+)
+
+echo %cfg%|findstr /i msvc2010 >nul:
+if %errorlevel%==0 (
+set "PATH=%PATH_MSVC2010%;%PATH%"
+set "LIB=%LIB_MSVC2010%"
+set "LIBPATH=%LIBPATH_MSVC2010%"
+set "INCLUDE=%INCLUDE_MSVC2010%"
+)
+
 cd %CI_NODE_ROOT%\build
 set GIT_BRANCH=%qt_ci_git_ref%
 set
