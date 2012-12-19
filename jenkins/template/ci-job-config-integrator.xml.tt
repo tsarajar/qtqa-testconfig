@@ -5,10 +5,10 @@
 
   <!-- clean up old builds -->
   <logRotator>
-    <daysToKeep>2</daysToKeep>
-    <numToKeep>5</numToKeep>
-    <artifactDaysToKeep>2</artifactDaysToKeep>
-    <artifactNumToKeep>5</artifactNumToKeep>
+    <daysToKeep>[% log_days_to_keep %]</daysToKeep>
+    <numToKeep>[% log_num_to_keep %]</numToKeep>
+    <artifactDaysToKeep>[% log_days_to_keep %]</artifactDaysToKeep>
+    <artifactNumToKeep>[% log_num_to_keep %]</artifactNumToKeep>
   </logRotator>
 
   <!-- properties passed in by integrator script -->
