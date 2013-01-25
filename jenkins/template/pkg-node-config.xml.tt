@@ -1,0 +1,34 @@
+<slave>
+  <name>[% name %]</name>
+  <description>Packaging node. Contact: [% contact %] [automatically generated from [% node_template %]]</description>
+  <remoteFS>[% root %]</remoteFS>
+  <label>[% labels %]</label>
+
+  <nodeProperties>
+
+    <!-- environment variables -->
+    <hudson.slaves.EnvironmentVariablesNodeProperty>
+      <envVars serialization="custom">
+        <unserializable-parents/>
+        <tree-map>
+          <default>
+            <comparator class="hudson.util.CaseInsensitiveComparator"/>
+          </default>
+          <int>[% environment.size + 1 %]</int>
+          <string>PKG_NODE_ROOT</string>
+          <string>[% root %]</string>
+[% FOREACH e IN environment -%]
+          <string>[% e.key %]</string>
+          <string>[% e.value %]</string>
+[% END -%]
+        </tree-map>
+      </envVars>
+    </hudson.slaves.EnvironmentVariablesNodeProperty>
+
+  </nodeProperties>
+  <!-- try to keep any boilerplate which will rarely need any changes under here -->
+  <numExecutors>1</numExecutors>
+  <mode>EXCLUSIVE</mode>
+  <retentionStrategy class="hudson.slaves.RetentionStrategy$Always"/>
+  <launcher class="hudson.slaves.JNLPLauncher"/>
+</slave>

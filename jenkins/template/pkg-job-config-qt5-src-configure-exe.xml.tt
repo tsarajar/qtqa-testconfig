@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<matrix-project>
+  <description>Create configure.exe and add it to the src archives for Qt [% qt_version %] [% qt_license %]</description>
+    <disabled>[% enabled ? "false" : "true" %]</disabled>
+
+  <!-- clean up old builds -->
+  <logRotator>
+    <daysToKeep>[% log_days_to_keep %]</daysToKeep>
+    <numToKeep>[% log_num_to_keep %]</numToKeep>
+    <artifactDaysToKeep>[% log_days_to_keep %]</artifactDaysToKeep>
+    <artifactNumToKeep>[% log_num_to_keep %]</artifactNumToKeep>
+  </logRotator>
+
+  <properties>
+  </properties>
+
+  <triggers/>
+
+  <axes>
+    <hudson.matrix.LabelAxis>
+      <name>cfg</name>
+      <values>
+       [%- FOREACH cfg IN configurations %]
+        <string>[% cfg %]</string>
+       [%- END %]
+      </values>
+    </hudson.matrix.LabelAxis>
+  </axes>
+
+  <!-- pre-build steps -->
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper/>
+  </buildWrappers>
+  <builders>
+    <org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+      <condition class="org.jenkins_ci.plugins.run_condition.core.AlwaysRun" plugin="run-condition@0.10"/>
+      <buildStep class="hudson.tasks.BatchFile">
+        <command>
+echo %cfg%|findstr /i msvc2010 >nul:
+if %errorlevel%==0 (
+set "PATH=%PATH_MSVC2010%;%PATH%"
+set "LIB=%LIB_MSVC2010%"
+set "LIBPATH=%LIBPATH_MSVC2010%"
+set "INCLUDE=%INCLUDE_MSVC2010%"
+)
+rd /S /Q %PKG_NODE_ROOT%\build
+mkdir %PKG_NODE_ROOT%\build
+cd %PKG_NODE_ROOT%\build
+mkdir qtsdk
+cd qtsdk
+# Fetch qtsdk.git to get release-tools/ and needed scripts
+call git init || exit 1
+call git fetch qt-gerrit-mirror:[% gerrit_project %] refs/heads/[% branch %] || exit 1
+call git checkout FETCH_HEAD || exit 1
+cd ..
+mkdir work
+cd work
+set
+python -u ../qtsdk/release-tools/helpers/create_configure_exe.py src_url=[% artifacts_download_url %]/[% qt_license %]/qt/[% qt_version %]/latest/src/single/qt-everywhere-[% qt_license %]-src-[% qt_version %].zip mdl_url=[% artifacts_download_url %]/[% qt_license %]/qt/[% qt_version %]/latest/src/submodules_zip/qtbase-[% qt_license %]-src-[% qt_version %].zip do_7z
+
+set ARTF_UPLOAD_PATH=[% artifacts_upload_host %]:[% artifacts_upload_path %]/[% qt_license %]/qt/[% qt_version %]/latest/src
+
+cd %PKG_NODE_ROOT%\build\work
+%SCP% -v qt-everywhere-[% qt_license %]-src-[% qt_version %].zip %ARTF_UPLOAD_PATH%/single/
+%SCP% -v qtbase-[% qt_license %]-src-[% qt_version %].zip %ARTF_UPLOAD_PATH%/submodules_zip/
+%SCP% -v qtbase-[% qt_license %]-src-[% qt_version %].zip %ARTF_UPLOAD_PATH%/submodules/
+
+%SCP% -v qt-everywhere-[% qt_license %]-src-[% qt_version %].7z %ARTF_UPLOAD_PATH%/single/
+%SCP% -v qtbase-[% qt_license %]-src-[% qt_version %].7z %ARTF_UPLOAD_PATH%/submodules_zip/
+%SCP% -v qtbase-[% qt_license %]-src-[% qt_version %].7z %ARTF_UPLOAD_PATH%/submodules/
+
+        </command>
+      </buildStep>
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail"/>
+    </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
+  </builders>
+  <publishers>
+    <!--
+        post-build step:
+
+          - reboot test machine, set temporarily offline;
+            it is expected to bring itself back online at next boot.
+
+          - post an event to the integrator script so it knows the build's state
+            has changed; script is assumed to be running on the same host as Jenkins.
+    -->
+    <org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
+      <groovyScript>
+import hudson.slaves.OfflineCause.SimpleOfflineCause
+import hudson.util.RemotingDiagnostics
+import java.io.PrintWriter
+import java.io.StringWriter
+
+// returns full stack trace of a throwable 't' as a string
+def getStackTrace(t) {
+    def sw = new StringWriter()
+    def pw = new PrintWriter(sw, true)
+    t.printStackTrace(pw)
+    pw.flush()
+    sw.flush()
+    return sw.toString()
+}
+
+// FIXME: why cannot we import jenkins.util.NonLocalizable ?
+class OfflineMessage extends org.jvnet.localizer.Localizable {
+  def message
+  OfflineMessage() {
+    super(null, null, [])
+    def timestr = new Date().format("HH:mm dd/MM/yy z", TimeZone.getTimeZone("UTC"))
+    this.message = "automated reboot at end of test at " + timestr
+  }
+  String toString() {
+    this.message
+  }
+  String toString(java.util.Locale l) {
+    toString()
+  }
+}
+
+def computer = manager.build.getBuiltOn().toComputer()
+def channel = computer.getChannel()
+def cause = SimpleOfflineCause.create(new OfflineMessage())
+
+def rebooted = 0
+
+for (i in 1..5) {
+  try {
+    RemotingDiagnostics.executeGroovy( """
+
+      if (Functions.isWindows()) {
+        'shutdown /r /t 10 /c "Restarting after Jenkins test completed"'.execute()
+      } else {
+        "sudo -n reboot".execute()
+      }
+
+    """, channel )
+    rebooted = i
+    break
+  } catch (Exception e) {
+    manager.addWarningBadge("could not reboot [attempt " + i + "]: " + getStackTrace(e))
+    // disconnecting the computer, waiting for it to reconnect and reinitializing the
+    // channel helps to recover from "Could not initialize class org.codehause.groovy.runtime.InvokerHelper",
+    // which occurs on slaves sometimes (with Jenkins 1.466) for unknown reasons.
+    computer.disconnect(cause).get()
+    sleep(30000)
+    channel = computer.getChannel()
+    def attempts = 0
+    while (channel == null &amp;&amp; ++attempts &lt; 5) {
+      sleep(30000)
+      channel = computer.getChannel()
+    }
+  }
+}
+
+if (rebooted == 0) {
+  manager.addShortText("reboot failed")
+} else if (rebooted > 1) {
+  manager.addShortText("rebooted after " + rebooted + " attempts")
+} else {
+  manager.addInfoBadge("rebooted after build")
+}
+
+if (rebooted) {
+  // make sure jobs cannot be scheduled until after the node reboots
+  computer.setTemporarilyOffline(true, cause)
+}
+      </groovyScript>
+      <behavior>0</behavior>
+    </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
+  </publishers>
+  <scm class="hudson.scm.NullSCM"/>
+  <scmCheckoutRetryCount>5</scmCheckoutRetryCount>
+  <executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    <runSequentially>false</runSequentially>
+  </executionStrategy>
+  <actions/>
+  <keepDependencies>false</keepDependencies>
+  <canRoam>true</canRoam>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <concurrentBuild>true</concurrentBuild>
+</matrix-project>
