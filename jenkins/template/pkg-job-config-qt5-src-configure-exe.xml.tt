@@ -75,95 +75,17 @@ cd %PKG_NODE_ROOT%\build\work
     </org.jenkinsci.plugins.conditionalbuildstep.singlestep.SingleConditionalBuilder>
   </builders>
   <publishers>
-    <!--
-        post-build step:
-
-          - reboot test machine, set temporarily offline;
-            it is expected to bring itself back online at next boot.
-
-          - post an event to the integrator script so it knows the build's state
-            has changed; script is assumed to be running on the same host as Jenkins.
-    -->
+    <hudson.tasks.BuildTrigger>
+      <childProjects>Qt5_[% qt_license %]_build</childProjects>
+      <threshold>
+        <name>SUCCESS</name>
+        <ordinal>0</ordinal>
+        <color>BLUE</color>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
     <org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
       <groovyScript>
-import hudson.slaves.OfflineCause.SimpleOfflineCause
-import hudson.util.RemotingDiagnostics
-import java.io.PrintWriter
-import java.io.StringWriter
-
-// returns full stack trace of a throwable 't' as a string
-def getStackTrace(t) {
-    def sw = new StringWriter()
-    def pw = new PrintWriter(sw, true)
-    t.printStackTrace(pw)
-    pw.flush()
-    sw.flush()
-    return sw.toString()
-}
-
-// FIXME: why cannot we import jenkins.util.NonLocalizable ?
-class OfflineMessage extends org.jvnet.localizer.Localizable {
-  def message
-  OfflineMessage() {
-    super(null, null, [])
-    def timestr = new Date().format("HH:mm dd/MM/yy z", TimeZone.getTimeZone("UTC"))
-    this.message = "automated reboot at end of test at " + timestr
-  }
-  String toString() {
-    this.message
-  }
-  String toString(java.util.Locale l) {
-    toString()
-  }
-}
-
-def computer = manager.build.getBuiltOn().toComputer()
-def channel = computer.getChannel()
-def cause = SimpleOfflineCause.create(new OfflineMessage())
-
-def rebooted = 0
-
-for (i in 1..5) {
-  try {
-    RemotingDiagnostics.executeGroovy( """
-
-      if (Functions.isWindows()) {
-        'shutdown /r /t 10 /c "Restarting after Jenkins test completed"'.execute()
-      } else {
-        "sudo -n reboot".execute()
-      }
-
-    """, channel )
-    rebooted = i
-    break
-  } catch (Exception e) {
-    manager.addWarningBadge("could not reboot [attempt " + i + "]: " + getStackTrace(e))
-    // disconnecting the computer, waiting for it to reconnect and reinitializing the
-    // channel helps to recover from "Could not initialize class org.codehause.groovy.runtime.InvokerHelper",
-    // which occurs on slaves sometimes (with Jenkins 1.466) for unknown reasons.
-    computer.disconnect(cause).get()
-    sleep(30000)
-    channel = computer.getChannel()
-    def attempts = 0
-    while (channel == null &amp;&amp; ++attempts &lt; 5) {
-      sleep(30000)
-      channel = computer.getChannel()
-    }
-  }
-}
-
-if (rebooted == 0) {
-  manager.addShortText("reboot failed")
-} else if (rebooted > 1) {
-  manager.addShortText("rebooted after " + rebooted + " attempts")
-} else {
-  manager.addInfoBadge("rebooted after build")
-}
-
-if (rebooted) {
-  // make sure jobs cannot be scheduled until after the node reboots
-  computer.setTemporarilyOffline(true, cause)
-}
+[% boot_script %]
       </groovyScript>
       <behavior>0</behavior>
     </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>

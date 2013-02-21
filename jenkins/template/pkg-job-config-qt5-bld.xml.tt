@@ -1,0 +1,217 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<matrix-project>
+  <description>Build Qt [% qt_version %] [% qt_license %] binaries</description>
+    <disabled>[% enabled ? "false" : "true" %]</disabled>
+
+  <!-- clean up old builds -->
+  <logRotator>
+    <daysToKeep>[% log_days_to_keep %]</daysToKeep>
+    <numToKeep>[% log_num_to_keep %]</numToKeep>
+    <artifactDaysToKeep>[% log_days_to_keep %]</artifactDaysToKeep>
+    <artifactNumToKeep>[% log_num_to_keep %]</artifactNumToKeep>
+  </logRotator>
+
+  <properties>
+  </properties>
+
+  <triggers class="vector">
+    <!-- normally we are triggered by incoming build requests, but a cron trigger may also be configured. -->
+    [%- IF trigger_cron %]
+    <hudson.triggers.TimerTrigger>
+      <spec>[% trigger_cron %]</spec>
+    </hudson.triggers.TimerTrigger>
+    [%- END %]
+  </triggers>
+
+  <axes>
+    <hudson.matrix.LabelAxis>
+      <name>cfg</name>
+      <values>
+       [%- FOREACH cfg IN configurations %]
+        <string>[% cfg %]</string>
+       [%- END %]
+      </values>
+    </hudson.matrix.LabelAxis>
+  </axes>
+
+  <!-- pre-build steps -->
+  <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper/>
+  </buildWrappers>
+  <builders>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.2.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@0.10"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.ExpressionCondition" plugin="run-condition@0.10">
+        <expression>^.*\blinux\b.*$</expression>
+        <label>${NODE_LABELS}</label>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.Shell>
+          <command>
+echo "Init build dir"
+rm -rf $PKG_NODE_ROOT/build
+mkdir $PKG_NODE_ROOT/build
+cd $PKG_NODE_ROOT/build
+mkdir qtsdk
+cd qtsdk
+git init || exit 1
+git fetch qt-gerrit-mirror:[% gerrit_project %] refs/heads/[% branch %] || exit 1
+git checkout FETCH_HEAD || exit 1
+
+echo "Build icu libs"
+cd $PKG_NODE_ROOT/build
+rm -rf icu*
+mkdir $PKG_NODE_ROOT/build/icu_install
+wget http://origin.releases.qt-project.org/qt5installer/icu_src/icu4c-49_1_2-src.tgz
+tar xvzf icu4c-49_1_2-src.tgz
+cd icu/source
+export LFLAGS='-Wl,-rpath,$ORIGIN'
+./runConfigureICU Linux --enable-rpath --prefix=$PKG_NODE_ROOT/build/icu_install
+make -j6
+make install
+cd $PKG_NODE_ROOT/build/icu_install/lib
+echo ICU_CHRPATH_START
+chrpath -r \$ORIGIN libicuuc.so
+chrpath -r \$ORIGIN libicui18n.so
+chrpath -r \$ORIGIN libicudata.so
+chrpath -r \$ORIGIN libicuio.so
+chrpath -r \$ORIGIN libicule.so
+chrpath -r \$ORIGIN libiculx.so
+chrpath -r \$ORIGIN libicutest.so
+chrpath -r \$ORIGIN libicutu.so
+echo ICU_CHRPATH_STOP
+7z a libicu_x86_ubuntu1110.7z libicuuc.so* libicui18n.so* libicudata.so*
+
+echo "Build sources"
+export LD_LIBRARY_PATH=$PKG_NODE_ROOT/build/icu_install/lib
+cd $PKG_NODE_ROOT/build
+python -u qtsdk/release-tools/mkqt5bld.py -u [% artifacts_download_url %]/[% qt_license %]/qt/[% qt_version %]/latest/src/single/qt-everywhere-[% qt_license %]-src-[% qt_version %].tar.gz -c $PKG_NODE_ROOT/build/qtsdk/release-tools/bld_config/configure_linux_[% qt_license %] -a "-L $PKG_NODE_ROOT/build/icu_install/lib -I $PKG_NODE_ROOT/build/icu_install/include -prefix $PKG_NODE_ROOT/build/______________________________PADDING______________________________ -R $PKG_NODE_ROOT/build/______________________________PADDING______________________________"
+
+echo "Copy results"
+echo ${NODE_NAME} | grep -c "x64" &amp;&amp; echo "linux_gcc_64_ubuntu1110" > name || echo "linux_gcc_32_ubuntu1110" > name
+echo "[% artifacts_upload_path %]/[% qt_license %]/qt/[% qt_version %]/latest/$(awk 'FNR == 1' name)/" > path
+
+ssh -t -t "[% artifacts_upload_host %]" "rm -rf $(awk 'FNR == 1' path)"
+ssh -t -t "[% artifacts_upload_host %]" "mkdir $(awk 'FNR == 1' path)"
+
+scp $PKG_NODE_ROOT/build/module_archives/*.7z [% artifacts_upload_host %]:/$(awk 'FNR == 1' path)
+scp $PKG_NODE_ROOT/build/icu_install/lib/libicu_x86_ubuntu1110.7z [% artifacts_upload_host %]:/$(awk 'FNR == 1' path)
+          </command>
+        </hudson.tasks.Shell>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.2.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@0.10"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.ExpressionCondition" plugin="run-condition@0.10">
+        <expression>^.*\bwindows\b.*$</expression>
+        <label>${NODE_LABELS}</label>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.BatchFile>
+          <command>
+echo "Init build dir"
+echo %cfg%|findstr /i msvc2010 >nul:
+if %errorlevel%==0 (
+set "PATH=%PATH_MSVC2010%;%PATH%"
+set "LIB=%LIB_MSVC2010%"
+set "LIBPATH=%LIBPATH_MSVC2010%"
+set "INCLUDE=%INCLUDE_MSVC2010%"
+set "NODE_VS_V=vs2010"
+)
+echo %cfg%|findstr /i msvc2012 >nul:
+if %errorlevel%==0 (
+set "PATH=%PATH_MSVC2012%;%PATH%"
+set "LIB=%LIB_MSVC2012%"
+set "LIBPATH=%LIBPATH_MSVC2012%"
+set "INCLUDE=%INCLUDE_MSVC2012%"
+set "NODE_VS_V=vs2012"
+)
+echo %cfg%|findstr /i win32 >nul:
+if %errorlevel%==0 (
+set "NODE_ARCH=32"
+)
+echo %cfg%|findstr /i win64 >nul:
+if %errorlevel%==0 (
+set "NODE_ARCH=64"
+)
+set BIN_DIR_NAME=windows_%NODE_VS_V%_%NODE_ARCH%
+set
+
+rd /S /Q %PKG_NODE_ROOT%\build
+mkdir %PKG_NODE_ROOT%\build
+cd %PKG_NODE_ROOT%\build
+mkdir qtsdk
+cd qtsdk
+call git init || exit 1
+call git fetch qt-gerrit-mirror:[% gerrit_project %] refs/heads/[% branch %] || exit 1
+call git checkout FETCH_HEAD || exit 1
+
+echo "Build binaries"
+set
+cd %PKG_NODE_ROOT%\build
+python -u qtsdk/release-tools/mkqt5bld.py -u [% artifacts_download_url %]/[% qt_license %]/qt/[% qt_version %]/latest/src/single/qt-everywhere-[% qt_license %]-src-[% qt_version %].zip -m jom -c %PKG_NODE_ROOT%\build\qtsdk\release-tools\bld_config\configure_win_[% qt_license %] || exit 1
+
+echo "Copy results"
+%SSH% -t -t "[% artifacts_upload_host %]" rm -rf "[% artifacts_upload_path %]/[% qt_license %]/qt/[% qt_version %]/latest/%BIN_DIR_NAME%/"
+%SSH% -t -t "[% artifacts_upload_host %]" mkdir "[% artifacts_upload_path %]/[% qt_license %]/qt/[% qt_version %]/latest/%BIN_DIR_NAME%/"
+cd %PKG_NODE_ROOT%\build\module_archives
+%SCP% *.7z "[% artifacts_upload_host %]:[% artifacts_upload_path %]/[% qt_license %]/qt/[% qt_version %]/latest/%BIN_DIR_NAME%/" || exit 1
+          </command>
+        </hudson.tasks.BatchFile>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+    <org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder plugin="conditional-buildstep@1.2.1">
+      <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail" plugin="run-condition@0.10"/>
+      <runCondition class="org.jenkins_ci.plugins.run_condition.core.ExpressionCondition" plugin="run-condition@0.10">
+        <expression>^.*\bmac\b.*$</expression>
+        <label>${NODE_LABELS}</label>
+      </runCondition>
+      <conditionalbuilders>
+        <hudson.tasks.Shell>
+          <command>
+echo "Init build dir"
+rm -rf $PKG_NODE_ROOT/build
+mkdir $PKG_NODE_ROOT/build
+cd $PKG_NODE_ROOT/build
+mkdir qtsdk
+cd qtsdk
+git init || exit 1
+git fetch qt-gerrit-mirror:[% gerrit_project %] refs/heads/[% branch %] || exit 1
+git checkout FETCH_HEAD || exit 1
+echo "Build binaries"
+cd $PKG_NODE_ROOT/build
+pwd
+python -u qtsdk/release-tools/mkqt5bld.py -u [% artifacts_download_url %]/[% qt_license %]/qt/[% qt_version %]/latest/src/single/qt-everywhere-[% qt_license %]-src-[% qt_version %].tar.gz -c $PKG_NODE_ROOT/build/qtsdk/release-tools/bld_config/configure_mac_[% qt_license %]  -a " -prefix $PKG_NODE_ROOT/build/______________________________PADDING______________________________ -no-pch"
+
+echo "Copy results"
+echo "[% artifacts_upload_path %]/[% qt_license %]/qt/[% qt_version %]/latest/mac_cocoa_10.7/" > path
+
+ssh -t -t "[% artifacts_upload_host %]" "rm -rf $(awk 'FNR == 1' path)"
+ssh -t -t "[% artifacts_upload_host %]" "mkdir $(awk 'FNR == 1' path)"
+
+scp $PKG_NODE_ROOT/build/module_archives/*.7z [% artifacts_upload_host %]:$(awk 'FNR == 1' path)
+          </command>
+        </hudson.tasks.Shell>
+      </conditionalbuilders>
+    </org.jenkinsci.plugins.conditionalbuildstep.ConditionalBuilder>
+  </builders>
+  <publishers>
+    <org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
+      <groovyScript>
+[% boot_script %]
+      </groovyScript>
+      <behavior>0</behavior>
+    </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
+  </publishers>
+  <scm class="hudson.scm.NullSCM"/>
+  <scmCheckoutRetryCount>5</scmCheckoutRetryCount>
+  <executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    <runSequentially>false</runSequentially>
+  </executionStrategy>
+  <actions/>
+  <keepDependencies>false</keepDependencies>
+  <canRoam>true</canRoam>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <concurrentBuild>true</concurrentBuild>
+</matrix-project>
