@@ -186,6 +186,13 @@ set "LIBPATH=%LIBPATH_MINGW47";%LIBPATH%"
 set "INCLUDE=%INCLUDE_MINGW47%;%INCLUDE%"
 )
 
+echo %cfg%|findstr /i wince70embedded >nul:
+if %errorlevel%==0 (
+REM LIB/INCLUDE contains desktop openssl/icu paths as set in jenkins ini,
+REM reset them before calling vsvars32.bat if we are building for WEC7
+set LIB=
+set INCLUDE=
+)
 echo %cfg%|findstr /i msvc2008 >nul:
 if %errorlevel%==0 (
 call "%VS90COMNTOOLS%\vsvars32.bat"
