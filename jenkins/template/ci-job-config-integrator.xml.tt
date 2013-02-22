@@ -181,17 +181,24 @@ git fetch --verbose qt-gerrit-mirror:[% gerrit_project %] +refs/heads/[% branch 
 echo %cfg%|findstr /i mingw47 >nul:
 if %errorlevel%==0 (
 set "PATH=%PATH_MINGW47%;%PATH%"
-set "LIB=%LIB_MINGW47%"
-set "LIBPATH=%LIBPATH_MINGW47%"
-set "INCLUDE=%INCLUDE_MINGW47%"
+set "LIB=%LIB_MINGW47%;%LIB%"
+set "LIBPATH=%LIBPATH_MINGW47";%LIBPATH%"
+set "INCLUDE=%INCLUDE_MINGW47%;%INCLUDE%"
+)
+
+echo %cfg%|findstr /i msvc2008 >nul:
+if %errorlevel%==0 (
+call "%VS90COMNTOOLS%\vsvars32.bat"
 )
 
 echo %cfg%|findstr /i msvc2010 >nul:
 if %errorlevel%==0 (
-set "PATH=%PATH_MSVC2010%;%PATH%"
-set "LIB=%LIB_MSVC2010%"
-set "LIBPATH=%LIBPATH_MSVC2010%"
-set "INCLUDE=%INCLUDE_MSVC2010%"
+call "%VS100COMNTOOLS%\vsvars32.bat"
+)
+
+echo %cfg%|findstr /i msvc2012 >nul:
+if %errorlevel%==0 (
+call "%MSVC2012_DIR%\vcvarsall.bat" x64
 )
 
 cd %CI_NODE_ROOT%\build
