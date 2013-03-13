@@ -1,1 +1,1 @@
--v -no-pch -release -developer-build -opensource -confirm-license -force-pkg-config -make libs -make tools -make examples -make tests
+-no-pch -release -developer-build -opensource -confirm-license -force-pkg-config -make libs -make tools -make examples -make tests
