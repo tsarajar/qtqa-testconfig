@@ -1,1 +1,1 @@
--silent -no-pch -release -static -nomake tests
+-no-pch -release -static -nomake tests
