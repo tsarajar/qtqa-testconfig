@@ -1,1 +1,1 @@
--silent -no-pch -release
+-platform macx-g++ -silent -no-pch -release
