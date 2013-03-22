@@ -1,1 +1,1 @@
--no-pch -release -static -nomake tests
+-no-pch -release -static -skip qtwebkit -no-icu -nomake tests
