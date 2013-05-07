@@ -156,6 +156,7 @@ mkdir -p $CI_NODE_ROOT/build
 cd $CI_NODE_ROOT/build
 git init
 git fetch --verbose qt-gerrit-mirror:[% gerrit_project %] +refs/heads/[% branch %]:refs/remotes/mirror/[% branch %]
+git config remote.origin.url qt-gerrit-mirror:
 </command>
           </buildStep>
           <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail"/>
