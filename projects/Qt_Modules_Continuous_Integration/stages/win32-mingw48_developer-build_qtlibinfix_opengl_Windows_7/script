@@ -1,0 +1,1 @@
+call perl _qtqa_latest/scripts/setup.pl --install && perl _qtqa_latest/scripts/qt/qtmod_test.pl
