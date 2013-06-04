@@ -126,6 +126,19 @@ set "LIBPATH=%LIBPATH_MSVC2012%"
 set "INCLUDE=%INCLUDE_MSVC2012%"
 set "NODE_VS_V=vs2012"
 )
+echo %cfg%|findstr /i mingw47 >nul:
+if %errorlevel%==0 (
+set "PATH=%PATH_MINGW47%;%PATH%"
+set "LIB=%LIB_MINGW47%;%LIB%"
+set "LIBPATH=%LIBPATH_MINGW47";%LIBPATH%"
+set "INCLUDE=%INCLUDE_MINGW47%;%INCLUDE%"
+)
+
+echo %cfg%|findstr /i mingw48 >nul:
+if %errorlevel%==0 (
+set "PATH=%PATH_MINGW48%;%PATH%"
+)
+
 echo %cfg%|findstr /i win32 >nul:
 if %errorlevel%==0 (
 set "NODE_ARCH=32"
