@@ -77,14 +77,3 @@ if (rebooted) {
   // make sure jobs cannot be scheduled until after the node reboots
   computer.setTemporarilyOffline(true, cause)
 }
-
-def env = System.getenv()
-String jenkins_url= env['JENKINS_URL']
-def index = jenkins_url.indexOf("ci")
-
-//Notify integrator script about the node state, only for CI jenkins
-if (index) {
-  s = new Socket("localhost", 7182)
-  s &lt;&lt; '{"type":"build-updated","job":"[% name %]","build":' &lt;&lt; manager.build.number &lt;&lt; '}'
-  s.close()
-}
