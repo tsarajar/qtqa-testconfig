@@ -43,7 +43,7 @@ for (i in 1..5) {
       if (Functions.isWindows()) {
         'shutdown /r /t 10 /c "Restarting after Jenkins build completed"'.execute()
       } else {
-        "sudo -n reboot".execute()
+        "sudo -n /sbin/reboot".execute()
       }
 
     """, channel )
