@@ -264,6 +264,25 @@ perl _testconfig/test.pl --project "[% testconfig_project %]"
   </builders>
 
   <publishers>
+    [%- IF publish_xunit == 1 %]
+    <xunit>
+      <types>
+        <QTestLibType>
+          <pattern>**/_artifacts/test-logs/*.xml</pattern>
+          <failIfNotNew>false</failIfNotNew>
+          <deleteOutputFiles>true</deleteOutputFiles>
+          <stopProcessingIfError>false</stopProcessingIfError>
+        </QTestLibType>
+      </types>
+    </xunit>
+    [%- END %]
+    [%- IF publish_build == 1 %]
+    <hudson.plugins.build__publisher.BuildPublisher plugin="build-publisher">
+      <publishUnstableBuilds>true</publishUnstableBuilds>
+      <publishFailedBuilds>true</publishFailedBuilds>
+      <postActions class="vector"/>
+    </hudson.plugins.build__publisher.BuildPublisher>
+    [%- END %]
     <!--
         post-build step:
 
