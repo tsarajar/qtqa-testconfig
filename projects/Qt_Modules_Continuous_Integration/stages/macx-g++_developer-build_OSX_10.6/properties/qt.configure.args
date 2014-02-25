@@ -1,1 +1,0 @@
--no-pch -release -developer-build -opensource -confirm-license -force-pkg-config -platform macx-g++ -make libs -make tools -make examples -make tests
