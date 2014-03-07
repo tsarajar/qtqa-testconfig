@@ -1,0 +1,1 @@
+-opensource -confirm-license -developer-build -qtnamespace TestNamespace -make libs -make tools -make examples -make tests
