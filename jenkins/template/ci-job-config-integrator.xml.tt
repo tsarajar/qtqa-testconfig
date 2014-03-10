@@ -178,7 +178,6 @@ git fetch --verbose qt-gerrit-mirror:[% gerrit_project %] +refs/heads/[% branch 
       <buildStep class="hudson.tasks.BatchFile">
         <!-- GIT_BRANCH set for compatibility with Git SCM plugin -->
         <command>
-setlocal enabledelayedexpansion
 echo %cfg%|findstr /i mingw47 >nul:
 if %errorlevel%==0 (
 set "PATH=%PATH_MINGW47%;%PATH%"
@@ -190,9 +189,6 @@ set "INCLUDE=%INCLUDE_MINGW47%;%INCLUDE%"
 echo %cfg%|findstr /i mingw48 >nul:
 if %errorlevel%==0 (
 set "PATH=%PATH_MINGW48%;%PATH%"
-set "PATH=%PATH%;%ICUMINGW48%\bin"
-set "LIBRARY=%LIBRARY%;%ICUMINGW48%\lib"
-set "INCLUDE=%INCLUDE%;%ICUMINGW48%\include"
 )
 
 echo %cfg%|findstr /i wince70embedded >nul:
@@ -214,19 +210,9 @@ call "%VS100COMNTOOLS%\vsvars32.bat"
 
 echo %cfg%|findstr /i msvc2012 >nul:
 if %errorlevel%==0 (
-call "%MSVC2012_DIR%\vcvarsall.bat" %PROCESSOR_ARCHITECTURE%
-set "PATH=!PATH!;%ICU2012%\bin;%ICU2012%\lib"
-set "LIB=!LIB!;%ICU2012%\lib"
-set "INCLUDE=!INCLUDE!;%ICU2012%\include"
+call "%MSVC2012_DIR%\vcvarsall.bat" x64
 )
 
-echo %cfg%|findstr /i msvc2013 >nul:
-if %errorlevel%==0 (
-call "%MSVC2013_DIR%\vcvarsall.bat" %PROCESSOR_ARCHITECTURE%
-set "PATH=!PATH!;%ICU2013%\bin;%ICU2013%\lib"
-set "LIB=!LIB!;%ICU2013%\lib"
-set "INCLUDE=!INCLUDE!;%ICU2013%\include"
-)
 cd %CI_NODE_ROOT%\build
 set GIT_BRANCH=%qt_ci_git_ref%
 set
@@ -244,7 +230,6 @@ call git reset --hard origin/master
 if errorlevel 1 exit /b 1
 cd ..
 perl _testconfig/test.pl --project "[% testconfig_project %]"
-endlocal
 </command>
       </buildStep>
       <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail"/>
