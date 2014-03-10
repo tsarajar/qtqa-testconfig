@@ -195,6 +195,13 @@ set "LIBRARY=!LIBRARY!;%ICUMINGW48%\lib"
 set "INCLUDE=!INCLUDE!;%ICUMINGW48%\include"
 )
 
+echo %cfg%|findstr /i winrt >nul:
+if %errorlevel%==0 (
+set "TARGET_ARCHITECTURE=x86"
+) else (
+set "TARGET_ARCHITECTURE=%PROCESSOR_ARCHITECTURE%"
+)
+
 echo %cfg%|findstr /i wince70embedded >nul:
 if %errorlevel%==0 (
 REM LIB/INCLUDE contains desktop openssl/icu paths as set in jenkins ini,
@@ -214,7 +221,7 @@ call "%VS100COMNTOOLS%\vsvars32.bat"
 
 echo %cfg%|findstr /i msvc2012 >nul:
 if %errorlevel%==0 (
-call "%MSVC2012_DIR%\vcvarsall.bat" %PROCESSOR_ARCHITECTURE%
+call "%MSVC2012_DIR%\vcvarsall.bat" %TARGET_ARCHITECTURE%
 set "PATH=!PATH!;%ICU2012%\bin;%ICU2012%\lib"
 set "LIB=!LIB!;%ICU2012%\lib"
 set "INCLUDE=!INCLUDE!;%ICU2012%\include"
@@ -222,7 +229,7 @@ set "INCLUDE=!INCLUDE!;%ICU2012%\include"
 
 echo %cfg%|findstr /i msvc2013 >nul:
 if %errorlevel%==0 (
-call "%MSVC2013_DIR%\vcvarsall.bat" %PROCESSOR_ARCHITECTURE%
+call "%MSVC2013_DIR%\vcvarsall.bat" %TARGET_ARCHITECTURE%
 set "PATH=!PATH!;%ICU2013%\bin;%ICU2013%\lib"
 set "LIB=!LIB!;%ICU2013%\lib"
 set "INCLUDE=!INCLUDE!;%ICU2013%\include"
