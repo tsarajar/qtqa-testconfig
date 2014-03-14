@@ -1,1 +1,1 @@
--confirm-license -developer-build -iconv -force-debug-info -largefile -nomake examples -nomake tests -nomake tools -no-pch -no-rpath -opensource -release -separate-debug-info -shared -strip -v
+-confirm-license -developer-build -iconv -largefile -nomake examples -nomake tests -nomake tools -no-pch -no-rpath -opensource -release -shared -strip -v

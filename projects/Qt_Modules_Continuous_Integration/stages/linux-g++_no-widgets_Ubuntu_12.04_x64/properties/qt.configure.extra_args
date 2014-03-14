@@ -1,1 +1,1 @@
--silent -no-pch -no-widgets -separate-debug-info
+-silent -no-pch -no-widgets -force-debug-info

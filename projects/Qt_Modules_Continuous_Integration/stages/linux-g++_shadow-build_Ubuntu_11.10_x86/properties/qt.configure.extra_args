@@ -1,1 +1,1 @@
--silent -no-pch -separate-debug-info -xcb -no-gtkstyle
+-silent -no-pch -force-debug-info -xcb -no-gtkstyle

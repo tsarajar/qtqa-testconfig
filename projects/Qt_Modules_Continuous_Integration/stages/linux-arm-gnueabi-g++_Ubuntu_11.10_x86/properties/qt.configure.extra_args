@@ -1,1 +1,1 @@
--silent -no-pch -separate-debug-info -no-xcb -xplatform linux-arm-gnueabi-g++ -opengl es2 -D MESA_EGL_NO_X11_HEADERS -Wno-psabi
+-silent -no-pch -force-debug-info -no-xcb -xplatform linux-arm-gnueabi-g++ -opengl es2 -D MESA_EGL_NO_X11_HEADERS -Wno-psabi
