@@ -1,1 +1,1 @@
--opensource -confirm-license -developer-build
+-confirm-license -developer-build -iconv -largefile -no-pch -no-rpath -opensource -release -shared -strip
