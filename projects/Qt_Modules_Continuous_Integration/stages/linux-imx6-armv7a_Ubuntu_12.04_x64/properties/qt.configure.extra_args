@@ -1,0 +1,1 @@
+-release -device linux-imx6-g++ -device-option CROSS_COMPILE=/opt/imx6/sysroots/x86_64-pokysdk-linux/usr/bin/armv7a-vfp-neon-poky-linux-gnueabi/arm-poky-linux-gnueabi- -sysroot /opt/imx6/sysroots/armv7a-vfp-neon-poky-linux-gnueabi -no-xcb -force-debug-info -v
