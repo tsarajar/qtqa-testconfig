@@ -1,0 +1,1 @@
+-opensource -confirm-license -nomake examples -nomake tests -xplatform macx-ios-clang -no-pkg-config -release
