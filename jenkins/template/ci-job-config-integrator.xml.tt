@@ -117,6 +117,7 @@
           </condition>
           <buildStep class="hudson.tasks.BatchFile">
             <command>
+rd /S /Q %WORKSPACE%\_artifacts
 rd /S /Q %CI_NODE_ROOT%\build
 mkdir %CI_NODE_ROOT%\build
 cd %CI_NODE_ROOT%\build
@@ -151,6 +152,7 @@ exit /b 0
           </condition>
           <buildStep class="hudson.tasks.Shell">
             <command>set +e
+rm -rf $WORKSPACE/_artifacts
 rm -rf $CI_NODE_ROOT/build
 mkdir -p $CI_NODE_ROOT/build
 cd $CI_NODE_ROOT/build
@@ -305,6 +307,14 @@ perl _testconfig/test.pl --project "[% testconfig_project %]"
       <postActions class="vector"/>
     </hudson.plugins.build__publisher.BuildPublisher>
     [%- END %]
+    <!--
+        To upload test xml logs to Jenkins master
+    -->
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>**/*.xml</artifacts>
+      <latestOnly>true</latestOnly>
+      <allowEmptyArchive>true</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
     <!--
         post-build step:
 
