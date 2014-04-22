@@ -1,0 +1,1 @@
+-developer-build -nomake tools -sdk iphonesimulator -make tests
