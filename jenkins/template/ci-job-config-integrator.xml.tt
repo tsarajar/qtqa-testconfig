@@ -312,7 +312,7 @@ perl _testconfig/test.pl --project "[% testconfig_project %]"
     -->
     <hudson.tasks.ArtifactArchiver>
       <artifacts>**/*.xml</artifacts>
-      <latestOnly>true</latestOnly>
+      <latestOnly>false</latestOnly>
       <allowEmptyArchive>true</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
     <!--
