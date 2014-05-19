@@ -253,6 +253,12 @@ call git reset --hard origin/master
 if errorlevel 1 exit /b 1
 cd ..
 perl _testconfig/test.pl --project "[% testconfig_project %]"
+[%- IF publish_build == "log_publisher" %]
+set PUBLISHER_PARAMS="token=PUBLISHER&amp;BUILD_LOG_URL=%BUILD_URL%&amp;REMOTE_BUILD_NUMBER=%BUILD_NUMBER%&amp;REMOTE_BUILD_NAME=%JOB_NAME%
+set PUBLISHER_JENKINS="[% remote_jenkins %]"
+set PUBLISHER_JOB="[% remote_jenkins_job %]"
+perl _qtqa_latest\scripts\jenkins\jenkins_job_trigger.pl -fireandforget
+[%- END %]
 endlocal
 </command>
       </buildStep>
@@ -280,6 +286,13 @@ git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/* |
 git fetch ssh://codereview.qt-project.org/qtqa/testconfig +refs/heads/*:refs/remotes/origin/*
 git reset --hard origin/master
 cd ..
+[%- IF publish_build == "log_publisher" %]
+PUBLISHER_PARAMS="token=PUBLISHER&amp;BUILD_LOG_URL=$BUILD_URL&amp;REMOTE_BUILD_NUMBER=$BUILD_NUMBER&amp;REMOTE_BUILD_NAME=$JOB_NAME"
+export PUBLISHER_PARAMS
+export PUBLISHER_JENKINS="[% remote_jenkins %]"
+export PUBLISHER_JOB="[% remote_jenkins_job %]"
+trap 'perl _qtqa_latest/scripts/jenkins/jenkins_job_trigger.pl -fireandforget' INT TERM EXIT
+[%- END %]
 perl _testconfig/test.pl --project "[% testconfig_project %]"
 </command>
       </buildStep>
