@@ -1,1 +1,1 @@
--no-pch -release -I/opt/local/include/openssl
+-no-pch -release
