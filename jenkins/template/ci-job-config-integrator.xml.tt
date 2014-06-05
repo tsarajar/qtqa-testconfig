@@ -18,7 +18,7 @@
         <hudson.model.StringParameterDefinition>
           <name>qt_ci_git_url</name>
           <description>Git URL for code under test</description>
-          <defaultValue>ssh://codereview.qt-project.org/[% gerrit_project %]</defaultValue>
+          <defaultValue>ssh://[% gerrit_host %]/[% gerrit_project %]</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.StringParameterDefinition>
           <name>qt_ci_git_ref</name>
@@ -123,7 +123,11 @@ mkdir %CI_NODE_ROOT%\build
 cd %CI_NODE_ROOT%\build
 call git init
 if errorlevel 1 exit /b 1
+[%- IF gerrit_host != "codereview.qt-project.org" %]
+call git fetch --verbose [% gerrit_host %]:[% gerrit_project %] +refs/heads/[% branch %]:refs/remotes/mirror/[% branch %]
+[%- ELSE %]
 call git fetch --verbose qt-gerrit-mirror:[% gerrit_project %] +refs/heads/[% branch %]:refs/remotes/mirror/[% branch %]
+[%- END %]
 exit /b 0
 </command>
           </buildStep>
@@ -157,7 +161,11 @@ rm -rf $CI_NODE_ROOT/build
 mkdir -p $CI_NODE_ROOT/build
 cd $CI_NODE_ROOT/build
 git init
+[%- IF gerrit_host != "codereview.qt-project.org" %]
+git fetch --verbose [% gerrit_host %]:[% gerrit_project %] +refs/heads/[% branch %]:refs/remotes/mirror/[% branch %]
+[%- ELSE %]
 git fetch --verbose qt-gerrit-mirror:[% gerrit_project %] +refs/heads/[% branch %]:refs/remotes/mirror/[% branch %]
+[% END %]
 </command>
           </buildStep>
           <runner class="org.jenkins_ci.plugins.run_condition.BuildStepRunner$Fail"/>
