@@ -1,1 +1,1 @@
-$(qt.dir)/qtbase
+$(qt.dir)/_install
