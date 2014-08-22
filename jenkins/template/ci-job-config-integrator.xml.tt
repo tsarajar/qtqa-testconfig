@@ -118,7 +118,7 @@
           <buildStep class="hudson.tasks.BatchFile">
             <command>
 rd /S /Q %WORKSPACE%\_artifacts
-rd /S /Q %CI_NODE_ROOT%\build
+rd /S /Q %CI_NODE_ROOT%\build & IF EXIST %CI_NODE_ROOT%\build TIMEOUT /T 5 & rd /S /Q %CI_NODE_ROOT%\build
 mkdir %CI_NODE_ROOT%\build
 cd %CI_NODE_ROOT%\build
 call git init
