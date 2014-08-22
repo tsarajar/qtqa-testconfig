@@ -247,9 +247,9 @@ set "INCLUDE=!INCLUDE!;%ICU2013%\include"
 cd %CI_NODE_ROOT%\build
 set GIT_BRANCH=%qt_ci_git_ref%
 set
-call git fetch --verbose %qt_ci_git_url% +%qt_ci_git_ref%:refs/testing
+call git remote add origin -t %qt_ci_git_ref% %qt_ci_git_url%
 if errorlevel 1 exit /b 1
-call git reset --hard refs/testing
+call git pull origin %qt_ci_git_ref%
 if errorlevel 1 exit /b 1
 call git init _testconfig
 if errorlevel 1 exit /b 1
@@ -286,8 +286,8 @@ cd $CI_NODE_ROOT/build
 GIT_BRANCH=${qt_ci_git_ref}
 export GIT_BRANCH
 set
-git fetch --verbose ${qt_ci_git_url} +${qt_ci_git_ref}:refs/testing
-git reset --hard refs/testing
+git remote add origin -t ${qt_ci_git_ref} ${qt_ci_git_url}
+git pull origin ${qt_ci_git_ref}
 git init _testconfig
 cd _testconfig
 git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/* || true
