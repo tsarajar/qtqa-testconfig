@@ -1,1 +1,1 @@
--no-incredibuild-xge -release -opengl desktop -static -skip qtwebkit -no-icu -nomake tests -nomake examples -skip qtwebengine
+-no-incredibuild-xge -release -opengl desktop -static -skip qtwebkit -no-icu -nomake tests -nomake examples

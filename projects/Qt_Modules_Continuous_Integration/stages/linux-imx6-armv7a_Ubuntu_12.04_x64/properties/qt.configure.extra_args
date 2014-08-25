@@ -1,1 +1,1 @@
--release -device linux-imx6-g++ -device-option CROSS_COMPILE=/opt/imx6/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi/arm-poky-linux-gnueabi- -device-option DISTRO_OPTS=hard-float -sysroot /opt/imx6/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi -no-xcb -v -skip qtwebengine
+-release -device linux-imx6-g++ -device-option CROSS_COMPILE=/opt/imx6/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi/arm-poky-linux-gnueabi- -device-option DISTRO_OPTS=hard-float -sysroot /opt/imx6/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi -no-xcb -v
