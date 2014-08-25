@@ -1,1 +1,1 @@
--no-incredibuild-xge -release -platform win32-msvc2013 -xplatform winrt-x64-msvc2013 -skip qtwebkit
+-no-incredibuild-xge -release -platform win32-msvc2013 -xplatform winrt-x64-msvc2013 -skip qtwebkit -skip qtwebengine
