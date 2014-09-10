@@ -156,6 +156,7 @@ exit /b 0
           </condition>
           <buildStep class="hudson.tasks.Shell">
             <command>set +e
+/opt/version.sh || echo "Unable to execute version.sh"
 rm -rf $WORKSPACE/_artifacts
 rm -rf $CI_NODE_ROOT/build
 mkdir -p $CI_NODE_ROOT/build
