@@ -321,6 +321,7 @@ perl _testconfig/test.pl --project "[% testconfig_project %]"
         </QTestLibType>
       </types>
     </xunit>
+
     [%- END %]
     [%- IF publish_build == 1 %]
     <hudson.plugins.build__publisher.BuildPublisher plugin="build-publisher">
@@ -370,6 +371,27 @@ perl _testconfig/test.pl --project "[% testconfig_project %]"
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>true</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
+
+    [%- IF publish_build == "postbuild_publisher" %]
+    <!--
+        Run postbuild script, which will take care of uploading nightly build results
+        and sending e-mail
+    -->
+    <org.jenkinsci.plugins.postbuildscript.PostBuildScript>
+      <buildSteps>
+        <hudson.tasks.Shell>
+          <command>
+rm -f ./state_postbuild.py
+cp $JENKINS_HOME/state_postbuild.py .
+python ./state_postbuild.py -u $JOB_URL -n $BUILD_NUMBER
+          </command>
+        </hudson.tasks.Shell>
+      </buildSteps>
+      <scriptOnlyIfSuccess>false</scriptOnlyIfSuccess>
+      <scriptOnlyIfFailure>false</scriptOnlyIfFailure>
+      <executeOn>MATRIX</executeOn>
+    </org.jenkinsci.plugins.postbuildscript.PostBuildScript>
+    [%- END %]
     <!--
         post-build step:
 
