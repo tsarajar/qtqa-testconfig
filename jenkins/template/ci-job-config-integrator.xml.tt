@@ -206,7 +206,7 @@ set "LIBRARY=!LIBRARY!;%ICUMINGW48%\lib"
 set "INCLUDE=!INCLUDE!;%ICUMINGW48%\include"
 )
 
-echo %cfg%|findstr /i winrt >nul:
+echo %cfg%|findstr /i winrt >nul||echo %cfg%|findstr /i winphone >nul:
 if %errorlevel%==0 (
 set "TARGET_ARCHITECTURE=x86"
 ) else (
