@@ -1,1 +1,1 @@
--prefix $(qt.install.dir) -force-pkg-config
+-prefix $(qt.install.dir) -pkg-config
