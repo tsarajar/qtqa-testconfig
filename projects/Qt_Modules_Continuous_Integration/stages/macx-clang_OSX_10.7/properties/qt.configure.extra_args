@@ -1,1 +1,1 @@
--no-pch -release
+-no-pch -release -no-c++11
