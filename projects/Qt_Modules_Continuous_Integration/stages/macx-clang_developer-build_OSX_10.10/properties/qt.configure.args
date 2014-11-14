@@ -1,0 +1,1 @@
+-no-pch -release -developer-build -opensource -confirm-license -pkg-config -make libs -make tools -make examples -make tests
