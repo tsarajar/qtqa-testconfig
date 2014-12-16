@@ -190,12 +190,12 @@ git fetch --verbose qt-gerrit-mirror:[% gerrit_project %] +refs/heads/[% branch 
         <!-- GIT_BRANCH set for compatibility with Git SCM plugin -->
         <command>
 setlocal enabledelayedexpansion
-echo %cfg%|findstr /i mingw47 >nul:
+echo %cfg%|findstr /i mingw491 >nul:
 if %errorlevel%==0 (
-set "PATH=%PATH_MINGW47%;%PATH%"
-set "LIB=%LIB_MINGW47%;%LIB%"
-set "LIBPATH=%LIBPATH_MINGW47";%LIBPATH%"
-set "INCLUDE=%INCLUDE_MINGW47%;%INCLUDE%"
+set "PATH=%PATH_MINGW491%;%PATH%"
+set "PATH=!PATH!;%ICUMINGW491%\bin"
+set "LIBRARY=!LIBRARY!;%ICUMINGW491%\lib"
+set "INCLUDE=!INCLUDE!;%ICUMINGW491%\include"
 )
 
 echo %cfg%|findstr /i mingw48 >nul:
