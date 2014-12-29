@@ -104,7 +104,7 @@
               <org.jenkins__ci.plugins.run__condition.logic.ConditionContainer>
                 <condition class="org.jenkins_ci.plugins.run_condition.core.ExpressionCondition">
                   <!--
-                    A node is judged as Windows if it has 'windows' as one of its labels.
+                    A node is judged as Windows if it has 'o-win.*' as one of its labels.
                   -->
 [%- IF on_demand == 1 %]
                   <expression>^o-win.*$</expression>
@@ -305,23 +305,8 @@ endlocal
 [%- ELSE %]
         <command>
 setlocal enabledelayedexpansion
-echo %cfg%|findstr /i mingw491 >nul:
-if %errorlevel%==0 (
-set "PATH=%PATH_MINGW491%;%PATH%"
-set "PATH=!PATH!;%ICUMINGW491%\bin"
-set "LIBRARY=!LIBRARY!;%ICUMINGW491%\lib"
-set "INCLUDE=!INCLUDE!;%ICUMINGW491%\include"
-)
 
-echo %cfg%|findstr /i mingw48 >nul:
-if %errorlevel%==0 (
-set "PATH=%PATH_MINGW48%;!PATH!"
-set "PATH=!PATH!;%ICUMINGW48%\bin"
-set "LIBRARY=!LIBRARY!;%ICUMINGW48%\lib"
-set "INCLUDE=!INCLUDE!;%ICUMINGW48%\include"
-)
-
-echo %cfg%|findstr /i winrt >nul||echo %cfg%|findstr /i winphone >nul:
+echo %cfg%|findstr /i winrt >nul:
 if %errorlevel%==0 (
 set "TARGET_ARCHITECTURE=x86"
 ) else (
@@ -330,7 +315,7 @@ set "TARGET_ARCHITECTURE=%PROCESSOR_ARCHITECTURE%"
 
 echo %cfg%|findstr /i wince70embedded >nul:
 if %errorlevel%==0 (
-REM LIB/INCLUDE contains desktop openssl/icu paths as set in jenkins ini,
+REM LIB/INCLUDE contains desktop openssl paths as set in jenkins ini,
 REM reset them before calling vsvars32.bat if we are building for WEC7
 set LIB=
 set INCLUDE=
@@ -348,19 +333,10 @@ call "%VS100COMNTOOLS%\vsvars32.bat"
 echo %cfg%|findstr /i msvc2012 >nul:
 if %errorlevel%==0 (
 call "%MSVC2012_DIR%\vcvarsall.bat" %TARGET_ARCHITECTURE%
-set "PATH=!PATH!;%ICU2012%\bin;%ICU2012%\lib"
-set "LIB=!LIB!;%ICU2012%\lib"
-set "INCLUDE=!INCLUDE!;%ICU2012%\include"
 )
 
-echo %cfg%|findstr /i msvc2013 >nul:
-if %errorlevel%==0 (
-call "%MSVC2013_DIR%\vcvarsall.bat" %TARGET_ARCHITECTURE%
-set "PATH=!PATH!;%ICU2013%\bin;%ICU2013%\lib"
-set "LIB=!LIB!;%ICU2013%\lib"
-set "INCLUDE=!INCLUDE!;%ICU2013%\include"
 )
-cd %CI_NODE_ROOT%\build
+cd c:\work\build
 set GIT_BRANCH=%qt_ci_git_ref%
 set
 call git remote add origin -t %qt_ci_git_ref% %qt_ci_git_url%
@@ -371,7 +347,8 @@ call git init _testconfig
 if errorlevel 1 exit /b 1
 cd _testconfig
 call git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/*
-call git fetch ssh://codereview.qt-project.org/qtqa/testconfig.git +refs/heads/*:refs/remotes/origin/*
+<!--call git fetch git://gitorious.org/qtqa/tosarajas-testconfig.git +refs/heads/*:refs/remotes/origin/*-->
+call git fetch git://github.com/tsarajar/qtqa-testconfig.git +refs/heads/*:refs/remotes/origin/*
 if errorlevel 1 exit /b 1
 call git reset --hard origin/master
 if errorlevel 1 exit /b 1
@@ -416,7 +393,8 @@ git pull origin ${qt_ci_git_ref}
 git init _testconfig
 cd _testconfig
 git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/* || true
-git fetch ssh://codereview.qt-project.org/qtqa/testconfig +refs/heads/*:refs/remotes/origin/*
+<!--git fetch git://gitorious.org/qtqa/tosarajas-testconfig.git +refs/heads/*:refs/remotes/origin/*-->
+git fetch git://github.com/tsarajar/qtqa-testconfig.git +refs/heads/*:refs/remotes/origin/*
 git reset --hard origin/master
 cd ..
 [%- IF publish_build == "log_publisher" %]
@@ -608,9 +586,6 @@ if (rebooted) {
   computer.disconnect(cause).get()
 }
 
-s = new Socket("localhost", 7182)
-s &lt;&lt; '{"type":"build-updated","job":"[% name %]","build":' &lt;&lt; manager.build.number &lt;&lt; '}'
-s.close()
       </groovyScript>
       <behavior>0</behavior>
     </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
