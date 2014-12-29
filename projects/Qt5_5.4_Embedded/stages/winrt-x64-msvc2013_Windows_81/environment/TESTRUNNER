@@ -1,0 +1,1 @@
+\\work\\build\\qt\\qtbase\\bin\\windeployqt.exe^ ^debug\\$(TARGET).exe^ ^&^ \\work\\build\\qt\\qtbase\\bin\\winrtrunner.exe

@@ -1,0 +1,2 @@
+-sdk /opt/android/sdk -ndk /opt/android/ndk -logtype txt -runtime 1 -platform Android -q $(qt.dir)/qtbase/bin -b $(qt.dir)/qtbase/tests/auto
+

@@ -1,0 +1,2 @@
+-logtype txt -platform ios -runtime 5 -no-build -q $(qt.dir)/qtbase/bin
+

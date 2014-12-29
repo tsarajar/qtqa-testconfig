@@ -1,0 +1,1 @@
+-platform WinRT -runtime 1 -no-build -q $(qt.dir)/qtbase/bin -nix_utils_dir "C:\\Program Files (x86)\\Git\\bin"
