@@ -1,1 +1,1 @@
-qtgitreadonly:qt/qtqa.git _qtqa_latest
+git://github.com/tsarajar/qtqa.git _qtqa_latest
