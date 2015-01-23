@@ -1,1 +1,1 @@
--silent -no-pch -developer-build -opensource -confirm-license -qtnamespace TestNamespace -qtlibinfix TestInfix -force-pkg-config -make libs -make tools -make examples -make tests -no-gtkstyle
+-silent -no-pch -developer-build -opensource -confirm-license -qtnamespace TestNamespace -qtlibinfix TestInfix -force-pkg-config -make libs -make tools -make examples -make tests -no-gtkstyle -qt-xcb
