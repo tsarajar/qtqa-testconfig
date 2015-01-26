@@ -172,7 +172,8 @@ exit /b 0
             <command>set +e
 /opt/version.sh || echo "Unable to execute version.sh"
 [%- IF on_demand == 1 %]
-
+rm -rf /work/ci
+rm -rf /work/build
 mkdir -p /work/build
 cd /work/build
 [%- ELSE %]
@@ -649,7 +650,7 @@ computer.setTemporarilyOffline(true, cause)
     <org.jenkinsci.plugins.postbuildscript.PostBuildScript plugin="postbuildscript@0.14">
       <buildSteps>
         <hudson.tasks.Shell>
-          <command>perl /var/lib/jenkins/vm-cloner/vm-cloner-delete-nodes-and-vms.pl -ini /var/lib/jenkins/vm-cloner/[% template_ini_prefix %]_templates.ini -job $JOB_NAME -build_number $BUILD_NUMBER -forced_delete 1
+          <command>perl /var/lib/jenkins/vm-cloner/vm-cloner-delete-nodes-and-vms.pl -ini /var/lib/jenkins/vm-cloner/[% template_ini_prefix %]_templates.ini -job $JOB_NAME -build_number $BUILD_NUMBER
 set</command>
         </hudson.tasks.Shell>
       </buildSteps>
