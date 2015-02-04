@@ -288,7 +288,7 @@ if errorlevel 1 exit /b 1
 cd _testconfig
 call git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/*
 <!--call git fetch git://gitorious.org/qtqa/tosarajas-testconfig.git +refs/heads/*:refs/remotes/origin/*-->
-call git fetch git://github.com/tsarajar/qtqa-testconfig.git +refs/heads/*:refs/remotes/origin/*
+call git fetch git://ithub.com/tsarajar/qtqa-testconfig.git +refs/heads/*:refs/remotes/origin/*
 if errorlevel 1 exit /b 1
 call git reset --hard origin/master
 if errorlevel 1 exit /b 1
@@ -371,7 +371,7 @@ call git init _testconfig
 if errorlevel 1 exit /b 1
 cd _testconfig
 call git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/*
-call git fetch ssh://codereview.qt-project.org/qtqa/testconfig.git +refs/heads/*:refs/remotes/origin/*
+call git fetch git://github.com/tsarajar/qtqa-testconfig.git +refs/heads/*:refs/remotes/origin/*
 if errorlevel 1 exit /b 1
 call git reset --hard origin/master
 if errorlevel 1 exit /b 1
@@ -416,7 +416,7 @@ git pull origin ${qt_ci_git_ref}
 git init _testconfig
 cd _testconfig
 git fetch qt-gerrit-mirror:qtqa/testconfig +refs/heads/*:refs/remotes/mirror/* || true
-git fetch ssh://codereview.qt-project.org/qtqa/testconfig +refs/heads/*:refs/remotes/origin/*
+git fetch git://github.com/tsarajar/qtqa-testconfig.git +refs/heads/*:refs/remotes/origin/*
 git reset --hard origin/master
 cd ..
 [%- IF publish_build == "log_publisher" %]
