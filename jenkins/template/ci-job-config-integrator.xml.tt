@@ -604,7 +604,12 @@ if (rebooted == 0) {
 if (rebooted) {
   // make sure jobs cannot be scheduled until after the node reboots
   computer.setTemporarilyOffline(true, cause)
-  computer.disconnect(cause).get()
+  // This disconnect was added (QTQAINFRA-840) as openSUSE didn't want to reboot.
+  // However, Windows might have been affected in a negative matter, thus
+  // we don't force disconnect it anymore.
+  if (!Functions.isWindows()) {
+    computer.disconnect(cause).get()
+  }
 }
 
 s = new Socket("localhost", 7182)
