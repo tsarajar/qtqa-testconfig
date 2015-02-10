@@ -1,1 +1,1 @@
--opensource -confirm-license -make tests
+-opensource -confirm-license -make tests -developer-build
