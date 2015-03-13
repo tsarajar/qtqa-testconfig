@@ -182,6 +182,7 @@ cd /work/build
 [%- ELSE %]
 rm -rf $WORKSPACE/_artifacts
 rm -rf $CI_NODE_ROOT/build
+rm -rf ~/shadowbuild/*
 mkdir -p $CI_NODE_ROOT/build
 cd $CI_NODE_ROOT/build
 [%- END %]
