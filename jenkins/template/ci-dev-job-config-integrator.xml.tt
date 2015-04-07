@@ -30,6 +30,11 @@
           <description>Qt Project CI system build request ID; leave blank for manual trigger</description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>DELETE_VM</name>
+          <description>1</description>
+          <defaultValue>true</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -639,7 +644,11 @@ class OfflineMessage extends org.jvnet.localizer.Localizable {
   OfflineMessage() {
     super(null, null, [])
     def timestr = new Date().format("HH:mm dd/MM/yy z", TimeZone.getTimeZone("UTC"))
-    this.message = "Node brought offline after build at " + timestr
+    if (manager.build.buildVariables.get("DELETE_VM")) {
+        this.message = "Node brought offline after build at " + timestr
+    } else {
+        this.message = "Node brought offline after build at " + timestr + ". KEEP"
+    }
   }
   String toString() {
     this.message
