@@ -634,17 +634,6 @@ computer.setTemporarilyOffline(true, cause)
       </groovyScript>
       <behavior>0</behavior>
     </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
-    <org.jenkinsci.plugins.postbuildscript.PostBuildScript plugin="postbuildscript@0.14">
-      <buildSteps>
-        <hudson.tasks.Shell>
-          <command>perl /var/lib/jenkins/vm-cloner/vm-cloner-delete-nodes-and-vms.pl -ini /var/lib/jenkins/vm-cloner/[% template_ini_prefix %]_templates.ini -job $JOB_NAME -build_number $BUILD_NUMBER -forced_delete 1
-set</command>
-        </hudson.tasks.Shell>
-      </buildSteps>
-      <scriptOnlyIfSuccess>false</scriptOnlyIfSuccess>
-      <scriptOnlyIfFailure>false</scriptOnlyIfFailure>
-      <executeOn>MATRIX</executeOn>
-    </org.jenkinsci.plugins.postbuildscript.PostBuildScript>
     [%- END %]
   </publishers>
 

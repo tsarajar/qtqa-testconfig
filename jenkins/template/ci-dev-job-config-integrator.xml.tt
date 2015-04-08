@@ -641,14 +641,10 @@ def getStackTrace(t) {
 // FIXME: why cannot we import jenkins.util.NonLocalizable ?
 class OfflineMessage extends org.jvnet.localizer.Localizable {
   def message
-  OfflineMessage() {
+
+  OfflineMessage(msg) {
     super(null, null, [])
-    def timestr = new Date().format("HH:mm dd/MM/yy z", TimeZone.getTimeZone("UTC"))
-    if (manager.build.buildVariables.get("DELETE_VM")) {
-        this.message = "Node brought offline after build at " + timestr
-    } else {
-        this.message = "Node brought offline after build at " + timestr + ". KEEP"
-    }
+    this.message = msg
   }
   String toString() {
     this.message
@@ -660,7 +656,14 @@ class OfflineMessage extends org.jvnet.localizer.Localizable {
 
 def computer = manager.build.getBuiltOn().toComputer()
 def channel = computer.getChannel()
-def cause = SimpleOfflineCause.create(new OfflineMessage())
+def timestr = new Date().format("HH:mm dd/MM/yy z", TimeZone.getTimeZone("UTC"))
+def msg
+if (manager.build.buildVariables.get("DELETE_VM") == "true") {
+    msg = "Node brought offline after build at " + timestr
+} else {
+    msg = "Node brought offline after build at " + timestr + ". KEEP"
+}
+    def cause = SimpleOfflineCause.create(new OfflineMessage(msg))
 
 // make sure jobs cannot be scheduled until after the node reboots
 computer.setTemporarilyOffline(true, cause)
@@ -668,17 +671,6 @@ computer.setTemporarilyOffline(true, cause)
       </groovyScript>
       <behavior>0</behavior>
     </org.jvnet.hudson.plugins.groovypostbuild.GroovyPostbuildRecorder>
-    <org.jenkinsci.plugins.postbuildscript.PostBuildScript plugin="postbuildscript@0.14">
-      <buildSteps>
-        <hudson.tasks.Shell>
-          <command>perl /var/lib/jenkins/vm-cloner/vm-cloner-delete-nodes-and-vms.pl -ini /var/lib/jenkins/vm-cloner/[% template_ini_prefix %]_templates.ini -job $JOB_NAME -build_number $BUILD_NUMBER
-set</command>
-        </hudson.tasks.Shell>
-      </buildSteps>
-      <scriptOnlyIfSuccess>false</scriptOnlyIfSuccess>
-      <scriptOnlyIfFailure>false</scriptOnlyIfFailure>
-      <executeOn>MATRIX</executeOn>
-    </org.jenkinsci.plugins.postbuildscript.PostBuildScript>
     [%- END %]
   </publishers>
 
