@@ -1,1 +1,0 @@
--no-pch -release -developer-build -qtnamespace TestNamespace -opensource -confirm-license -force-pkg-config -make libs -make tools -make examples -make tests
