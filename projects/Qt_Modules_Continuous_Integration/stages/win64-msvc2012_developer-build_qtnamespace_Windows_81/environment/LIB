@@ -1,1 +1,1 @@
-${LIB};c:\\utils\\icu_52_1_msvc_2012_64_devel\\icu52-1\\lib
+C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\LIB;C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\ATLMFC\\LIB;C:\\Program Files (x86)\\Windows Kits\\8.0\\lib\\win8\\um\\x86;${LIB};c:\\utils\\icu_52_1_msvc_2012_64_devel\\icu52-1\\lib
