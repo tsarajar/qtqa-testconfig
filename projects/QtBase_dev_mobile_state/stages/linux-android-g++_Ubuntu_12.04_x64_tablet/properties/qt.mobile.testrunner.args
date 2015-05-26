@@ -1,1 +1,0 @@
--sdk /opt/android/sdk -ndk /opt/android/ndk -logtype txt -runtime 1 -silent -ci
