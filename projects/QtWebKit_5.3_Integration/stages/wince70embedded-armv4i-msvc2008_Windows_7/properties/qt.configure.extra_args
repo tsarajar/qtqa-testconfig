@@ -1,2 +1,0 @@
--no-incredibuild-xge -release -platform win32-msvc2008 -xplatform wince70embedded-armv4i-msvc2008 -no-accessibility -opengl es2 -rtti -skip qtmultimedia -no-dbus
-
