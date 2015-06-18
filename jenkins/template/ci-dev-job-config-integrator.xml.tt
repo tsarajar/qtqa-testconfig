@@ -180,6 +180,7 @@ exit /b 0
           <buildStep class="hudson.tasks.Shell">
             <command>set +e
 /opt/version.sh || echo "Unable to execute version.sh"
+ifconfig
 [%- IF on_demand == 1 %]
 rm -rf /work/ci
 rm -rf /work/build
@@ -284,6 +285,7 @@ call "%MSVC2012_DIR%\vcvarsall.bat" %TARGET_ARCHITECTURE%
 cd c:\work\build
 set GIT_BRANCH=%qt_ci_git_ref%
 set
+ipconfig
 call git remote add origin -t %qt_ci_git_ref% %qt_ci_git_url%
 if errorlevel 1 exit /b 1
 call git pull origin %qt_ci_git_ref%
@@ -368,6 +370,7 @@ set "INCLUDE=!INCLUDE!;%ICU2013%\include"
 cd %CI_NODE_ROOT%\build
 set GIT_BRANCH=%qt_ci_git_ref%
 set
+ipconfig
 call git remote add origin -t %qt_ci_git_ref% %qt_ci_git_url%
 if errorlevel 1 exit /b 1
 call git pull origin %qt_ci_git_ref%
@@ -416,6 +419,7 @@ cd $CI_NODE_ROOT/build
 GIT_BRANCH=${qt_ci_git_ref}
 export GIT_BRANCH
 set
+ifconfig
 git remote add origin -t ${qt_ci_git_ref} ${qt_ci_git_url}
 git pull origin ${qt_ci_git_ref}
 git init _testconfig
