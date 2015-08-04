@@ -1,1 +1,0 @@
--opengl es2 -no-qpa-platform-guard -xplatform android-g++ -skip qtserialport -skip qtwebkit -skip qtwebkit-examples -skip qttools -skip qtx11extras -android-ndk /opt/android/ndk -android-sdk /opt/android/sdk -android-toolchain-version 4.8 -no-dbus
