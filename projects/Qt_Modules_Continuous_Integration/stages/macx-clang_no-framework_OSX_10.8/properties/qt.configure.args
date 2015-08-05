@@ -1,1 +1,1 @@
--silent -no-pch -opensource -confirm-license -force-pkg-config -make libs -make tools -nomake examples -nomake tests -debug -no-framework
+-silent -no-pch -opensource -confirm-license -make libs -make tools -nomake examples -nomake tests -debug -no-framework
