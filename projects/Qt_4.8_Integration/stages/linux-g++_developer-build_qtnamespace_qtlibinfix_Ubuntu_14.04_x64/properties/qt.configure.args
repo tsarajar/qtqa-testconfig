@@ -1,1 +1,0 @@
--silent -no-pch -developer-build -opensource -confirm-license -qtnamespace TestNamespace -qtlibinfix TestInfix -separate-debug-info -force-pkg-config -no-gtkstyle
