@@ -1,1 +1,0 @@
--developer-build -nomake tools -make tests -no-dbus
