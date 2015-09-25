@@ -180,7 +180,7 @@ exit /b 0
           <buildStep class="hudson.tasks.Shell">
             <command>set +e
 /opt/version.sh || echo "Unable to execute version.sh"
-ifconfig
+/sbin/ifconfig
 [%- IF on_demand == 1 %]
 rm -rf /work/ci
 rm -rf /work/build
@@ -419,7 +419,7 @@ cd $CI_NODE_ROOT/build
 GIT_BRANCH=${qt_ci_git_ref}
 export GIT_BRANCH
 set
-ifconfig
+/sbin/ifconfig
 git remote add origin -t ${qt_ci_git_ref} ${qt_ci_git_url}
 git pull origin ${qt_ci_git_ref}
 git init _testconfig
