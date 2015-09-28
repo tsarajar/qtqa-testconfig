@@ -1,1 +1,1 @@
--developer-build -device vxworks-imx6 -device-option CROSS_COMPILE=arm -sysroot /opt/fsl_imx6_1_1_4_3_VSB -no-gcc-sysroot -no-pch -no-largefile -nomake tools -nomake examples -no-sql-sqlite -static -no-openssl -v -nomake examples
+-developer-build -device vxworks-imx6 -device-option CROSS_COMPILE=arm -sysroot /opt/fsl_imx6_1_1_4_3_VSB -no-gcc-sysroot -no-pch -no-largefile -nomake tools -nomake examples -no-sql-sqlite -static -no-openssl -v -nomake examples -no-compile-examples -shared -extprefix /work/install -prefix /sd0:1/qt55rtp
