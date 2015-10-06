@@ -1,1 +1,1 @@
-git fetch https://codereview.qt-project.org/qt/qtsvg refs/changes/64/127064/1 && git cherry-pick FETCH_HEAD
+git fetch https://codereview.qt-project.org/qt/qtsvg refs/changes/64/127064/2 && git cherry-pick FETCH_HEAD
