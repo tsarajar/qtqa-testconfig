@@ -1,0 +1,1 @@
+git fetch https://codereview.qt-project.org/qt/qtxmlpatterns refs/changes/33/145733/1 && git cherry-pick FETCH_HEAD
