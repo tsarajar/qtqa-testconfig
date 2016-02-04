@@ -1,1 +1,1 @@
-git fetch ssh://codereview.qt-project.org/qt/tqtc-qtdeclarative refs/changes/08/125908/1 && git cherry-pick FETCH_HEAD
+git fetch ssh://codereview.qt-project.org:29418/qt/qtquickcontrols refs/changes/36/148036/2 && git cherry-pick FETCH_HEAD
